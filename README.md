@@ -4,6 +4,8 @@ RMonitor Leaderboard
 RMonitor Leaderboard is a swing application designed for displaying race summary information from an rmonitor feed over
 tcp, such as the one provided by the MyLaps Orbits software.
 
+![Screenshot](/screenshot.png)
+
 Protocol information was taken from here: http://www.imsatiming.com/software/Protocols/AMB%20RMonitor%20Timing%20Protocol.pdf
 
 It displays summary information and a sortable table of the current competitors in the race. In addition, it will
