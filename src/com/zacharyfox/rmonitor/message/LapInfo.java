@@ -2,7 +2,7 @@ package com.zacharyfox.rmonitor.message;
 
 import com.zacharyfox.rmonitor.utils.Duration;
 
-public class LapInfo
+public class LapInfo extends RMonitorMessage
 {
 	private int position;
 	private String regNumber;
