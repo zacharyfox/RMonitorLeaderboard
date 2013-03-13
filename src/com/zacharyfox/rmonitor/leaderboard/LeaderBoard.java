@@ -3,6 +3,7 @@ package com.zacharyfox.rmonitor.leaderboard;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,39 +13,45 @@ import java.beans.PropertyChangeListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.border.EtchedBorder;
 import javax.swing.table.TableRowSorter;
+
+import net.miginfocom.swing.MigLayout;
 
 import com.zacharyfox.rmonitor.entities.Race;
 
 public class LeaderBoard implements ActionListener
 {
 
-	private JButton connectButton = new JButton("Connect");
-
-	private JLabel elapsedTime = new JLabel("00:00:00");
-	private JLabel estLaps = new JLabel("0");
+	private JButton connectButton;
 	private JFrame frame;
-
+	private JTextField ip;
+	private JLabel lblNewLabel;
+	private JLabel lblNewLabel_1;
+	private JLabel lblNewLabel_2;
+	private JLabel timeToGo;
+	private JLabel lblServerIp;
+	private JPanel panel;
+	private JPanel panel_1;
+	private JPanel panel_2;
+	private JTextField port;
+	private Race race;
+	private JScrollPane resultsScrollPane;
+	private JLabel runName;
+	private JTabbedPane tabbedPane;
 	private JTable leaderBoard;
 	private Table leaderBoardTable = new Table();
-	private Race race = new Race();
-	// Info
-	private JLabel raceName = new JLabel("Unknown");
-	private JLabel scheduledTime = new JLabel("00:00:00");
-
-	// Controls
-	private JTextField ip = new JTextField("192.168.1.4");
-	private JTextField port = new JTextField("50000");
-	private JScrollPane scrollPane;
-
-	private JSeparator separator;
-	private JSeparator separator_1;
-	private JLabel timeToGo = new JLabel("00:00:00");
+	private JLabel trackName;
 	private Worker worker;
+	private JLabel elapsedTime;
+	private JLabel scheduledTime;
+	private JLabel lblNewLabel_3;
 
 	/**
 	 * Create the application.
@@ -84,103 +91,118 @@ public class LeaderBoard implements ActionListener
 	 */
 	private void initialize()
 	{
-
 		frame = new JFrame();
-		frame.setBounds(100, 100, 800, 500);
+		frame.setBackground(SystemColor.activeCaption);
+		frame.getContentPane().setBackground(new Color(220, 220, 220));
+		frame.setBounds(100, 100, 800, 400);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(null);
+		frame.getContentPane().setLayout(
+			new MigLayout("", "[grow]", "[:40.00:40px,grow][:31.00:30.00,grow][::25.00,grow][240.00]"));
 
-		JLabel lblNewLabel = new JLabel("Server IP:");
-		lblNewLabel.setBounds(6, 10, 65, 20);
-		frame.getContentPane().add(lblNewLabel);
+		panel = new JPanel();
+		panel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		panel.setBackground(new Color(220, 220, 220));
+		frame.getContentPane().add(panel, "cell 0 0,alignx right,aligny top");
+		panel.setLayout(new GridLayout(0, 5, 0, 0));
 
-		ip.setBounds(64, 6, 134, 28);
-		lblNewLabel.setLabelFor(ip);
-		frame.getContentPane().add(ip);
+		lblServerIp = new JLabel("Server IP:");
+		lblServerIp.setHorizontalAlignment(SwingConstants.RIGHT);
+		panel.add(lblServerIp);
+
+		ip = new JTextField();
+		panel.add(ip);
+		ip.setText("192.168.1.4");
 		ip.setColumns(10);
 
-		JLabel lblNewLabel_1 = new JLabel("Server Port:");
-		lblNewLabel_1.setBounds(201, 12, 71, 16);
-		frame.getContentPane().add(lblNewLabel_1);
+		lblNewLabel = new JLabel("Server Port:");
+		lblNewLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		panel.add(lblNewLabel);
 
-		port.setBounds(277, 6, 134, 28);
-		lblNewLabel_1.setLabelFor(port);
-		frame.getContentPane().add(port);
+		port = new JTextField();
+		panel.add(port);
+		port.setText("50000");
 		port.setColumns(10);
 
-		connectButton.setBounds(415, 7, 117, 29);
-		frame.getContentPane().add(connectButton);
+		connectButton = new JButton("Connect");
+		connectButton.addActionListener(this);
+		panel.add(connectButton);
 
-		JLabel lblNewLabel_2 = new JLabel("Race:");
-		lblNewLabel_2.setBounds(6, 59, 39, 16);
-		lblNewLabel_2.setFont(new Font("Lucida Grande", Font.BOLD, 13));
-		frame.getContentPane().add(lblNewLabel_2);
+		panel_1 = new JPanel();
+		panel_1.setBackground(new Color(220, 220, 220));
+		frame.getContentPane().add(panel_1, "cell 0 1,grow");
+		panel_1.setLayout(new GridLayout(1, 0, 0, 0));
 
-		raceName.setBounds(45, 59, 480, 16);
-		frame.getContentPane().add(raceName);
+		runName = new JLabel("Unknown Run");
+		panel_1.add(runName);
+		runName.setFont(new Font("Lucida Grande", Font.BOLD, 16));
 
-		JLabel lblNewLabel_3 = new JLabel("Time To Go:");
-		lblNewLabel_3.setBounds(6, 87, 87, 16);
-		lblNewLabel_3.setFont(new Font("Lucida Grande", Font.BOLD, 13));
-		frame.getContentPane().add(lblNewLabel_3);
-		timeToGo.setBounds(89, 87, 64, 16);
-		frame.getContentPane().add(timeToGo);
+		trackName = new JLabel("Unknown Track");
+		panel_1.add(trackName);
+		trackName.setFont(new Font("Lucida Grande", Font.BOLD, 16));
+		trackName.setHorizontalAlignment(SwingConstants.RIGHT);
 
-		JLabel lblNewLabel_4 = new JLabel("Elapsed Time:");
-		lblNewLabel_4.setBounds(179, 87, 102, 16);
-		lblNewLabel_4.setFont(new Font("Lucida Grande", Font.BOLD, 13));
-		frame.getContentPane().add(lblNewLabel_4);
-		elapsedTime.setBounds(278, 87, 61, 16);
-		frame.getContentPane().add(elapsedTime);
+		panel_2 = new JPanel();
+		panel_2.setBackground(new Color(220, 220, 220));
+		frame.getContentPane().add(panel_2, "cell 0 2,grow");
+		panel_2.setLayout(new GridLayout(1, 0, 0, 0));
 
-		JLabel lblNewLabel_5 = new JLabel("Race Length:");
-		lblNewLabel_5.setBounds(379, 87, 88, 16);
-		lblNewLabel_5.setFont(new Font("Lucida Grande", Font.BOLD, 13));
-		frame.getContentPane().add(lblNewLabel_5);
-		scheduledTime.setBounds(471, 87, 61, 16);
-		frame.getContentPane().add(scheduledTime);
+		lblNewLabel_1 = new JLabel("Elapsed Time:");
+		panel_2.add(lblNewLabel_1);
+		
+		elapsedTime = new JLabel("00:00:00");
+		panel_2.add(elapsedTime);
 
-		JLabel lblNewLabel_9 = new JLabel("Estimated Laps:");
-		lblNewLabel_9.setBounds(6, 115, 134, 16);
-		lblNewLabel_9.setFont(new Font("Lucida Grande", Font.BOLD, 15));
-		frame.getContentPane().add(lblNewLabel_9);
+		lblNewLabel_2 = new JLabel("Time To Go:");
+		panel_2.add(lblNewLabel_2);
 
-		estLaps.setBounds(137, 116, 61, 16);
-		estLaps.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
-		frame.getContentPane().add(estLaps);
+		timeToGo = new JLabel("00:00:00");
+		panel_2.add(timeToGo);
+		
+		lblNewLabel_3 = new JLabel("Race Length:");
+		panel_2.add(lblNewLabel_3);
+		
+		scheduledTime = new JLabel("00:00:00");
+		panel_2.add(scheduledTime);
 
-		separator = new JSeparator();
-		separator.setBounds(5, 45, 790, 10);
-		separator.setForeground(SystemColor.inactiveCaption);
-		separator.setBackground(SystemColor.inactiveCaption);
-		frame.getContentPane().add(separator);
+		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		frame.getContentPane().add(tabbedPane, "cell 0 3,grow");
 
-		separator_1 = new JSeparator();
-		separator_1.setBounds(5, 134, 790, 10);
-		separator_1.setForeground(Color.GRAY);
-		separator_1.setBackground(Color.GRAY);
-		frame.getContentPane().add(separator_1);
-
-		scrollPane = new JScrollPane();
-		scrollPane.setBounds(5, 145, 790, 327);
-		frame.getContentPane().add(scrollPane);
+		resultsScrollPane = new JScrollPane();
+		tabbedPane.addTab("Race", null, resultsScrollPane, null);
 
 		leaderBoard = new JTable();
 		leaderBoard.setModel(leaderBoardTable);
-		scrollPane.setViewportView(leaderBoard);
 		TableRowSorter<Table> sorter = new TableRowSorter<Table>(leaderBoardTable);
 		leaderBoard.setRowSorter(sorter);
 		sorter.setSortsOnUpdates(true);
-
-		connectButton.addActionListener(this);
+		
+		resultsScrollPane.setViewportView(leaderBoard);
 	}
 
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args)
+	{
+		EventQueue.invokeLater(new Runnable() {
+			public void run()
+			{
+				try {
+					LeaderBoard window = new LeaderBoard();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
 	private void updateDisplay(PropertyChangeEvent evt)
 	{
-		System.out.println("Property Change Event: " + evt.getPropertyName());
+		// System.out.println("Property Change Event: " + evt.getPropertyName());
 
 		if (evt.getPropertyName().equals("name")) {
-			raceName.setText((String) evt.getNewValue());
+			runName.setText((String) evt.getNewValue());
 		}
 
 		if (evt.getPropertyName().equals("elapsedTime")) {
@@ -201,22 +223,4 @@ public class LeaderBoard implements ActionListener
 		}
 	}
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args)
-	{
-		EventQueue.invokeLater(new Runnable() {
-			@Override
-			public void run()
-			{
-				try {
-					LeaderBoard window = new LeaderBoard();
-					window.frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 }
