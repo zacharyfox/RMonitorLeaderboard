@@ -14,12 +14,14 @@ public abstract class Factory
 			put("$B", RunInfo.class);
 			put("$G", RaceInfo.class);
 			put("$A", CompInfo.class);
-			put("$COMP", CompInfo.class);
 			put("$C", ClassInfo.class);
 			put("$H", QualInfo.class);
 			put("$E", SettingInfo.class);
 			put("$I", InitRecord.class);
 			put("$J", PassingInfo.class);
+			put("$SP", LapInfo.class);
+			put("$SR", LapInfo.class);
+			put("$COMP", CompInfo.class);
 		}
 	};
 
@@ -41,6 +43,7 @@ public abstract class Factory
 			});
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
+			System.out.println(line);
 			e.printStackTrace();
 		}
 		return null;
