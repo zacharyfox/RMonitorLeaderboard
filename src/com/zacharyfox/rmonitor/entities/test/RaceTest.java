@@ -12,6 +12,7 @@ import com.zacharyfox.rmonitor.entities.Race;
 import com.zacharyfox.rmonitor.message.Heartbeat;
 import com.zacharyfox.rmonitor.message.RaceInfo;
 import com.zacharyfox.rmonitor.message.RunInfo;
+import com.zacharyfox.rmonitor.message.SettingInfo;
 import com.zacharyfox.rmonitor.utils.Duration;
 
 public class RaceTest
@@ -25,6 +26,8 @@ public class RaceTest
 	private boolean scheduledTimeFired = false;
 	private boolean timeOfDayFired = false;
 	private boolean timeToGoFired = false;
+	private boolean trackLengthFired = false;
+	private boolean trackNameFired = false;
 
 	@Test
 	public void testUpdateHeartbeat()
@@ -136,5 +139,43 @@ public class RaceTest
 
 		assertTrue(nameFired);
 		assertTrue(idFired);
+	}
+
+	@Test
+	public void testUpdateSettingInfo()
+	{
+		SettingInfo message = new SettingInfo(new String[] {
+			"$E", "TRACKNAME", "Indianapolis Motor Speedway"
+		});
+
+		SettingInfo message_1 = new SettingInfo(new String[] {
+			"$E", "TRACKLENGTH", "2.500"
+		});
+
+		Race race = new Race();
+
+		race.addPropertyChangeListener(new PropertyChangeListener() {
+
+			@Override
+			public void propertyChange(PropertyChangeEvent evt)
+			{
+				if ("trackName".equals(evt.getPropertyName())) {
+					trackNameFired = true;
+					assertEquals("Indianapolis Motor Speedway", evt.getNewValue());
+				}
+
+				if ("trackLength".equals(evt.getPropertyName())) {
+					trackLengthFired = true;
+					Float floatVal = (float) 2.5;
+					assertEquals(floatVal, evt.getNewValue());
+				}
+			}
+		});
+
+		race.update(message);
+		race.update(message_1);
+
+		assertTrue(trackNameFired);
+		assertTrue(trackLengthFired);
 	}
 }

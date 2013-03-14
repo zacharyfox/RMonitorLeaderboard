@@ -219,8 +219,14 @@ public class LeaderBoard implements ActionListener
 
 		if (evt.getPropertyName().equals("competitorsVersion")) {
 			leaderBoardTable.updateData();
-
+		}
+		
+		if (evt.getPropertyName().equals("trackName")){
+			trackName.setText(evt.getNewValue().toString());
+		}
+		
+		if (evt.getPropertyName().equals("trackLength")) {
+			// trackLength.setText(evt.getNewValue().toString());
 		}
 	}
-
 }

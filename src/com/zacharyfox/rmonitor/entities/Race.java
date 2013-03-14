@@ -9,6 +9,7 @@ import com.zacharyfox.rmonitor.message.LapInfo;
 import com.zacharyfox.rmonitor.message.RMonitorMessage;
 import com.zacharyfox.rmonitor.message.RaceInfo;
 import com.zacharyfox.rmonitor.message.RunInfo;
+import com.zacharyfox.rmonitor.message.SettingInfo;
 import com.zacharyfox.rmonitor.utils.Duration;
 
 public class Race
@@ -17,17 +18,15 @@ public class Race
 
 	private int competitorsVersion = 0;
 	private Duration elapsedTime = new Duration(0);
-
 	private String flagStatus = "";
 	private int id = 0;
-
 	private int lapsToGo = 0;
-
 	private String name = "";
 	private Duration scheduledTime = new Duration(0);
 	private Duration timeOfDay = new Duration(0);
-
 	private Duration timeToGo = new Duration(0);
+	private Float trackLength = (float) 0.0;
+	private String trackName = "";
 
 	public void addPropertyChangeListener(PropertyChangeListener l)
 	{
@@ -37,6 +36,16 @@ public class Race
 	public void addPropertyChangeListener(String property, PropertyChangeListener l)
 	{
 		changeSupport.addPropertyChangeListener(property, l);
+	}
+
+	public Float getTrackLength()
+	{
+		return trackLength;
+	}
+
+	public String getTrackName()
+	{
+		return trackName;
 	}
 
 	public void removePropertyChangeListener(PropertyChangeListener l)
@@ -82,6 +91,10 @@ public class Race
 			if (message.getClass() == RunInfo.class) {
 				this.messageUpdate((RunInfo) message);
 			}
+			
+			if (message.getClass() == SettingInfo.class) {
+				this.messageUpdate((SettingInfo) message); 
+			}
 
 			if (message.getClass() == RaceInfo.class
 					|| message.getClass() == CompInfo.class
@@ -91,7 +104,7 @@ public class Race
 			}
 		}
 	}
-
+	
 	private void messageUpdate(Heartbeat message)
 	{
 		setElapsedTime(message.getRaceTime());
@@ -106,6 +119,17 @@ public class Race
 	{
 		setName(message.getRaceName());
 		setId(message.getUniqueId());
+	}
+
+	private void messageUpdate(SettingInfo message)
+	{
+		if (message.getDescription().equals("TRACKNAME")) {
+			setTrackName(message.getValue());
+		}
+		
+		if (message.getDescription().equals("TRACKLENGTH")) {
+			setTrackLength(Float.parseFloat(message.getValue()));
+		}
 	}
 
 	private void setCompetitorsVersion()
@@ -168,5 +192,19 @@ public class Race
 		Duration oldTimeToGo = this.timeToGo;
 		this.timeToGo = timeToGo;
 		changeSupport.firePropertyChange("timeToGo", oldTimeToGo, this.timeToGo);
+	}
+
+	private void setTrackLength(Float trackLength)
+	{
+		Float oldTrackLength = this.trackLength;
+		this.trackLength = trackLength;
+		changeSupport.firePropertyChange("trackLength", oldTrackLength, this.trackLength);
+	}
+
+	private void setTrackName(String trackName)
+	{
+		String oldTrackName = this.trackName;
+		this.trackName = trackName;
+		changeSupport.firePropertyChange("trackName", oldTrackName, this.trackName);
 	}
 }
