@@ -1,71 +1,56 @@
 package com.zacharyfox.rmonitor.utils;
 
+import java.util.concurrent.TimeUnit;
+
 public class Duration
 {
-	private float durationFloat;
-
-	private String durationString;
-
-	public Duration(Float duration)
+	private long milliseconds;
+	
+	public Duration(float duration)
 	{
-		durationFloat = duration;
-		durationString = formatIntoHHMMSS(duration);
+		milliseconds = (long) (duration * 1000);
 	}
 
 	public Duration(int duration)
 	{
-		durationFloat = duration;
-		durationString = formatIntoHHMMSS(duration);
+		milliseconds = (long) (duration * 1000);
 	}
 
 	public Duration(String duration)
 	{
-		durationString = duration;
-
-		String[] tokens = durationString.split(":");
+		String[] tokens = duration.split(":");
 		int hours = Integer.parseInt(tokens[0]);
 		int minutes = Integer.parseInt(tokens[1]);
-		Float seconds = Float.parseFloat(tokens[2]);
-		durationFloat = (int) (3600 * hours + 60 * minutes + seconds);
+		float seconds = Float.parseFloat(tokens[2]);
+		float durationFloat = (float) (3600 * hours + 60 * minutes + seconds);
+		milliseconds = (long) (durationFloat * 1000);
+		
 	}
 
 	@Override
 	public boolean equals(Object other)
 	{
-		return (durationFloat == ((Duration) other).toFloat());
+		return (toFloat() == ((Duration) other).toFloat());
 	}
 
 	public Float toFloat()
 	{
-		return durationFloat;
+		return (float) milliseconds / 1000;
 	}
 
 	public int toInt()
 	{
-		return (int) durationFloat;
+		return (int) milliseconds / 1000;
 	}
 
 	@Override
 	public String toString()
 	{
-		return durationString;
-	}
-
-	private static String formatIntoHHMMSS(float floatIn)
-	{
-		int secsIn = (int) floatIn;
-		int hours = secsIn / 3600, remainder = secsIn % 3600, minutes = remainder / 60, seconds = remainder % 60;
-
-		return ((hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes + ":"
-			+ (seconds < 10 ? "0" : "") + seconds);
-	}
-
-	private static String formatIntoHHMMSS(int secsIn)
-	{
-		int hours = secsIn / 3600, remainder = secsIn % 3600, minutes = remainder / 60, seconds = remainder % 60;
-
-		return ((hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes + ":"
-			+ (seconds < 10 ? "0" : "") + seconds);
-
+		long hours = TimeUnit.MILLISECONDS.toHours(milliseconds);
+		long minutes = TimeUnit.MILLISECONDS.toMinutes(milliseconds) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(milliseconds));
+		long seconds = TimeUnit.MILLISECONDS.toSeconds(milliseconds) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliseconds));
+		long millis = TimeUnit.MILLISECONDS.toMillis(milliseconds) - TimeUnit.SECONDS.toMillis(TimeUnit.MILLISECONDS.toSeconds(milliseconds));
+		
+		return String.format("%02d:%02d:%02d.%03d", hours, minutes, seconds, millis);
 	}
 }

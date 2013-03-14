@@ -8,13 +8,15 @@ import com.zacharyfox.rmonitor.utils.Duration;
 
 public class DurationTest
 {
-	private Float floatVal = (float) 3600.000;
-	private int intVal = 3600;
-	private String stringVal = "01:00:00";
+	
 
 	@Test
 	public void testFloat()
 	{
+		Float floatVal = (float) 3600.123;
+		int intVal = 3600;
+		String stringVal = "01:00:00.123";
+		
 		Duration duration = new Duration(floatVal);
 
 		assertEquals(intVal, duration.toInt());
@@ -25,6 +27,10 @@ public class DurationTest
 	@Test
 	public void testInt()
 	{
+		Float floatVal = (float) 3600.0;
+		int intVal = 3600;
+		String stringVal = "01:00:00.000";
+		
 		Duration duration = new Duration(intVal);
 
 		assertEquals(intVal, duration.toInt());
@@ -35,6 +41,10 @@ public class DurationTest
 	@Test
 	public void testString()
 	{
+		Float floatVal = (float) 3600.123;
+		int intVal = 3600;
+		String stringVal = "01:00:00.123";
+		
 		Duration duration = new Duration(stringVal);
 
 		assertEquals(intVal, duration.toInt());
