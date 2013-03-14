@@ -29,8 +29,6 @@ public class Duration
 	@Override
 	public boolean equals(Object other)
 	{
-		System.out.println(milliseconds);
-		System.out.println(((Duration) other).toFloat());
 		return (milliseconds == ((Duration) other).milliseconds);
 	}
 

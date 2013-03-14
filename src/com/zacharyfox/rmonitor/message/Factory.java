@@ -37,14 +37,12 @@ public abstract class Factory
 		Class<?> messageClass = classMap.get(tokens[0]);
 
 		try {
-			if (messageClass == LapInfo.class) System.out.println(line);
 			Constructor<?> constructor = messageClass.getDeclaredConstructor(String[].class);
 			return (M) constructor.newInstance(new Object[] {
 				tokens
 			});
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			System.out.println(line);
 			e.printStackTrace();
 		}
 		return null;

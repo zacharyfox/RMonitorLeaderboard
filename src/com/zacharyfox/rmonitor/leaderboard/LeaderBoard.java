@@ -65,7 +65,6 @@ public class LeaderBoard implements ActionListener
 	public void actionPerformed(ActionEvent e)
 	{
 		if (e.getActionCommand().equals("Connect")) {
-			System.out.println("Executing worker");
 			race = new Race();
 			race.addPropertyChangeListener(new PropertyChangeListener() {
 				@Override
@@ -77,10 +76,7 @@ public class LeaderBoard implements ActionListener
 			worker = new Worker(ip.getText(), Integer.parseInt(port.getText()), connectButton, race);
 			worker.execute();
 		} else if (e.getActionCommand().equals("Disconnect")) {
-			System.out.println("Sending cancel");
 			worker.cancel(true);
-		} else {
-			System.out.println(e.getActionCommand());
 		}
 
 		return;

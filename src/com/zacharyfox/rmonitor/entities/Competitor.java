@@ -51,8 +51,6 @@ public class Competitor
 
 	public Object getAvgLap()
 	{
-		Float avgLap = (Float) (totalTime.toFloat() / lapsComplete);
-		System.out.println(avgLap);
 		return new Duration((Float) (totalTime.toFloat() / lapsComplete));
 	}
 
@@ -173,8 +171,6 @@ public class Competitor
 
 	private void messageUpdate(LapInfo message)
 	{
-		// System.out.println("Got Lap Info " + this.regNumber + " " +
-		// message.getLapNumber());
 		this.laps.put(message.getLapNumber(), new Object[] {
 			message.getLapNumber(), message.getPosition(), message.getLapTime()
 		});
@@ -184,8 +180,6 @@ public class Competitor
 		}
 
 		setBestLap(message.getLapTime());
-
-		System.out.println(this);
 	}
 
 	private void messageUpdate(RaceInfo message)
