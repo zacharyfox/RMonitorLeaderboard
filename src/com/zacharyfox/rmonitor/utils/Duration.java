@@ -23,14 +23,15 @@ public class Duration
 		int minutes = Integer.parseInt(tokens[1]);
 		float seconds = Float.parseFloat(tokens[2]);
 		float durationFloat = (float) (3600 * hours + 60 * minutes + seconds);
-		milliseconds = (long) (durationFloat * 1000);
-		
+		milliseconds = (int) (durationFloat * 1000);
 	}
 
 	@Override
 	public boolean equals(Object other)
 	{
-		return (toFloat() == ((Duration) other).toFloat());
+		System.out.println(milliseconds);
+		System.out.println(((Duration) other).toFloat());
+		return (milliseconds == ((Duration) other).milliseconds);
 	}
 
 	public Float toFloat()
