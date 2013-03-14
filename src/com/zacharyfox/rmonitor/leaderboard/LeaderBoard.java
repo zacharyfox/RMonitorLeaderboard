@@ -1,6 +1,7 @@
 package com.zacharyfox.rmonitor.leaderboard;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -25,6 +26,7 @@ import javax.swing.table.TableRowSorter;
 import net.miginfocom.swing.MigLayout;
 
 import com.zacharyfox.rmonitor.entities.Race;
+import javax.swing.JSeparator;
 
 public class LeaderBoard implements ActionListener
 {
@@ -52,6 +54,12 @@ public class LeaderBoard implements ActionListener
 	private JLabel elapsedTime;
 	private JLabel scheduledTime;
 	private JLabel lblNewLabel_3;
+	private JSeparator separator;
+	private JPanel flagColor;
+	private JPanel flagColor_1;
+	private JPanel flagColor_3;
+	private JPanel flagColor_2;
+	private JPanel flagColor_4;
 
 	/**
 	 * Create the application.
@@ -93,12 +101,38 @@ public class LeaderBoard implements ActionListener
 		frame.setBounds(100, 100, 800, 400);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(
-			new MigLayout("", "[grow]", "[:40.00:40px,grow][:31.00:30.00,grow][::25.00,grow][240.00]"));
+			new MigLayout("", "[grow][grow]", "[:40.00:40px,grow][:31.00:30.00,grow][][::25.00,grow][240.00,grow]"));
+		
+		flagColor = new JPanel();
+		flagColor.setBackground(null);
+		flagColor.setBorder(null);
+		frame.getContentPane().add(flagColor, "cell 0 0,grow");
+		flagColor.setLayout(new GridLayout(2, 2, 0, 0));
+		
+		flagColor_1 = new JPanel();
+		flagColor_1.setBackground(new Color(220, 220, 220));
+		flagColor_1.setBorder(null);
+		flagColor.add(flagColor_1);
+		
+		flagColor_2 = new JPanel();
+		flagColor_2.setBackground(new Color(220, 220, 220));
+		flagColor_2.setBorder(null);
+		flagColor.add(flagColor_2);
+		
+		flagColor_3 = new JPanel();
+		flagColor_3.setBackground(new Color(220, 220, 220));
+		flagColor_3.setBorder(null);
+		flagColor.add(flagColor_3);
+		
+		flagColor_4 = new JPanel();
+		flagColor_4.setBackground(new Color(220, 220, 220));
+		flagColor_4.setBorder(null);
+		flagColor.add(flagColor_4);
 
 		panel = new JPanel();
 		panel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		panel.setBackground(new Color(220, 220, 220));
-		frame.getContentPane().add(panel, "cell 0 0,alignx right,aligny top");
+		frame.getContentPane().add(panel, "cell 1 0,alignx right,aligny top");
 		panel.setLayout(new GridLayout(0, 5, 0, 0));
 
 		lblServerIp = new JLabel("Server IP:");
@@ -125,7 +159,7 @@ public class LeaderBoard implements ActionListener
 
 		panel_1 = new JPanel();
 		panel_1.setBackground(new Color(220, 220, 220));
-		frame.getContentPane().add(panel_1, "cell 0 1,grow");
+		frame.getContentPane().add(panel_1, "cell 0 1 2 1,grow");
 		panel_1.setLayout(new GridLayout(1, 0, 0, 0));
 
 		runName = new JLabel("Unknown Run");
@@ -136,10 +170,15 @@ public class LeaderBoard implements ActionListener
 		panel_1.add(trackName);
 		trackName.setFont(new Font("Lucida Grande", Font.BOLD, 16));
 		trackName.setHorizontalAlignment(SwingConstants.RIGHT);
+		
+		separator = new JSeparator();
+		separator.setPreferredSize(new Dimension(32767, 12));
+		separator.setForeground(new Color(169, 169, 169));
+		frame.getContentPane().add(separator, "cell 0 2 2 1");
 
 		panel_2 = new JPanel();
 		panel_2.setBackground(new Color(220, 220, 220));
-		frame.getContentPane().add(panel_2, "cell 0 2,grow");
+		frame.getContentPane().add(panel_2, "cell 0 3 2 1,grow");
 		panel_2.setLayout(new GridLayout(1, 0, 0, 0));
 
 		lblNewLabel_1 = new JLabel("Elapsed Time:");
@@ -161,7 +200,7 @@ public class LeaderBoard implements ActionListener
 		panel_2.add(scheduledTime);
 
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		frame.getContentPane().add(tabbedPane, "cell 0 3,grow");
+		frame.getContentPane().add(tabbedPane, "cell 0 4 2 1,grow");
 
 		resultsScrollPane = new JScrollPane();
 		tabbedPane.addTab("Race", null, resultsScrollPane, null);
@@ -217,12 +256,44 @@ public class LeaderBoard implements ActionListener
 			leaderBoardTable.updateData();
 		}
 		
+		if (evt.getPropertyName().equals("flagStatus")) {
+			setFlagColor(evt.getNewValue().toString());
+		}
+		
 		if (evt.getPropertyName().equals("trackName")){
 			trackName.setText(evt.getNewValue().toString());
 		}
 		
 		if (evt.getPropertyName().equals("trackLength")) {
+			// TODO: Handle Track Length
 			// trackLength.setText(evt.getNewValue().toString());
 		}
+	}
+
+	private void setFlagColor(String status)
+	{
+		// TODO: this is expedient, but not elegant.
+		if (status.equals("Green")) {
+			flagColor_1.setBackground(new Color(0, 255, 0));
+			flagColor_2.setBackground(new Color(0, 255, 0));
+			flagColor_3.setBackground(new Color(0, 255, 0));
+			flagColor_4.setBackground(new Color(0, 255, 0));
+		} else if (status.equals("Yellow")) {
+			flagColor_1.setBackground(new Color(255, 255, 0));
+			flagColor_2.setBackground(new Color(255, 255, 0));
+			flagColor_3.setBackground(new Color(255, 255, 0));
+			flagColor_4.setBackground(new Color(255, 255, 0));
+		} else if (status.equals("Red")) {
+			flagColor_1.setBackground(new Color(255, 0 ,0));
+			flagColor_2.setBackground(new Color(255, 0 ,0));
+			flagColor_3.setBackground(new Color(255, 0 ,0));
+			flagColor_4.setBackground(new Color(255, 0 ,0));
+		} else if (status.equals("Finish")) {
+			flagColor_1.setBackground(new Color(0, 0, 0));
+			flagColor_2.setBackground(new Color(255, 255, 255));
+			flagColor_3.setBackground(new Color(255, 255, 255));
+			flagColor_4.setBackground(new Color(0, 0, 0));
+		}
+		
 	}
 }
