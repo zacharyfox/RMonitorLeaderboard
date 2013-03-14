@@ -37,6 +37,7 @@ public abstract class Factory
 		Class<?> messageClass = classMap.get(tokens[0]);
 
 		try {
+			if (messageClass == LapInfo.class) System.out.println(line);
 			Constructor<?> constructor = messageClass.getDeclaredConstructor(String[].class);
 			return (M) constructor.newInstance(new Object[] {
 				tokens

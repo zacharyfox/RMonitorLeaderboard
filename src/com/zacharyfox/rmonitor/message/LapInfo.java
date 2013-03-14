@@ -13,7 +13,7 @@ public class LapInfo extends RMonitorMessage
 	{
 		position = Integer.parseInt(tokens[1]);
 		regNumber = tokens[2];
-		lapNumber = Integer.parseInt(tokens[3]);
+		lapNumber = (tokens[3] == "") ? 0 : Integer.parseInt(tokens[3]);
 		lapTime = new Duration(tokens[4]);
 	}
 

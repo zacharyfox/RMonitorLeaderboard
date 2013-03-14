@@ -5,6 +5,7 @@ import java.beans.PropertyChangeSupport;
 
 import com.zacharyfox.rmonitor.message.CompInfo;
 import com.zacharyfox.rmonitor.message.Heartbeat;
+import com.zacharyfox.rmonitor.message.LapInfo;
 import com.zacharyfox.rmonitor.message.RMonitorMessage;
 import com.zacharyfox.rmonitor.message.RaceInfo;
 import com.zacharyfox.rmonitor.message.RunInfo;
@@ -64,7 +65,7 @@ public class Race
 
 		if (leader != null) {
 			string += "Leader: " + leader.getRegNumber() + "\n";
-			string += "Leader Laps: " + leader.getLaps() + "\n";
+			string += "Leader Laps: " + leader.getLapsComplete() + "\n";
 			string += "Leader Total Time: " + leader.getTotalTime() + "\n";
 		}
 
@@ -82,7 +83,9 @@ public class Race
 				this.messageUpdate((RunInfo) message);
 			}
 
-			if (message.getClass() == RaceInfo.class || message.getClass() == CompInfo.class) {
+			if (message.getClass() == RaceInfo.class
+					|| message.getClass() == CompInfo.class
+					|| message.getClass() == LapInfo.class) {
 				Competitor.updateOrCreate(message);
 				setCompetitorsVersion();
 			}

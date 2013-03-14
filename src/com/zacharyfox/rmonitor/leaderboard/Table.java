@@ -72,8 +72,8 @@ public class Table extends AbstractTableModel
 	{
 		return new Object[] {
 			competitor.getPosition(), competitor.getRegNumber(),
-			competitor.getFirstName() + " " + competitor.getLastName(), competitor.getLaps(),
-			competitor.getTotalTime(), "", "", "", ""
+			competitor.getFirstName() + " " + competitor.getLastName(), competitor.getLapsComplete(),
+			competitor.getTotalTime(), competitor.getLastLap(), competitor.getBestLap(), competitor.getAvgLap(), ""
 		};
 	}
 }

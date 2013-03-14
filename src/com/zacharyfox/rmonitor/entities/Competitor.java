@@ -5,6 +5,7 @@ import java.beans.PropertyChangeSupport;
 import java.util.HashMap;
 
 import com.zacharyfox.rmonitor.message.CompInfo;
+import com.zacharyfox.rmonitor.message.LapInfo;
 import com.zacharyfox.rmonitor.message.RMonitorMessage;
 import com.zacharyfox.rmonitor.message.RaceInfo;
 import com.zacharyfox.rmonitor.utils.Duration;
@@ -12,10 +13,13 @@ import com.zacharyfox.rmonitor.utils.Duration;
 public class Competitor
 {
 	private String addData = "";
+	private Duration bestLap = new Duration(0);
 	private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 	private int classId = 0;
 	private String firstName = "";
-	private int laps = 0;
+	private HashMap<Integer, Object[]> laps = new HashMap<Integer, Object[]>();
+	private int lapsComplete = 0;
+	private Duration lastLap = new Duration(0);
 	private String lastName = "";
 	private String nationality = "";
 	private String number = "";
@@ -45,6 +49,18 @@ public class Competitor
 		return addData;
 	}
 
+	public Object getAvgLap()
+	{
+		Float avgLap = (Float) (totalTime.toFloat() / lapsComplete);
+		System.out.println(avgLap);
+		return new Duration((Float) (totalTime.toFloat() / lapsComplete));
+	}
+
+	public Duration getBestLap()
+	{
+		return bestLap;
+	}
+
 	public int getClassId()
 	{
 		return classId;
@@ -55,9 +71,19 @@ public class Competitor
 		return firstName;
 	}
 
-	public int getLaps()
+	public HashMap<Integer, Object[]> getLaps()
 	{
 		return laps;
+	}
+
+	public int getLapsComplete()
+	{
+		return lapsComplete;
+	}
+
+	public Duration getLastLap()
+	{
+		return lastLap;
 	}
 
 	public String getLastName()
@@ -105,18 +131,6 @@ public class Competitor
 		changeSupport.removePropertyChangeListener(property, l);
 	}
 
-	public void setLaps(int laps)
-	{
-		changeSupport.firePropertyChange("laps", this.laps, laps);
-		this.laps = laps;
-	}
-
-	public void setTotalTime(Duration totalTime)
-	{
-		changeSupport.firePropertyChange("totalTime", this.totalTime, totalTime);
-		this.totalTime = totalTime;
-	}
-
 	@Override
 	public String toString()
 	{
@@ -129,8 +143,15 @@ public class Competitor
 		string += "Transponder Number: " + transNumber + "\n";
 		string += "Class ID: " + classId + "\n";
 		string += "Position: " + position + "\n";
-		string += "Laps: " + laps + "\n";
+		string += "Laps: " + lapsComplete + "\n";
 		string += "Total Time: " + totalTime + "\n";
+		string += "Best Time: " + bestLap + "\n";
+
+		string += "Laps: \n";
+
+		for (Object[] lap : laps.values()) {
+			string += lap[0] + " " + lap[1] + " " + lap[2] + "\n";
+		}
 
 		return string;
 	}
@@ -150,11 +171,28 @@ public class Competitor
 			this.setAddData(message.getAddInfo());
 	}
 
+	private void messageUpdate(LapInfo message)
+	{
+		// System.out.println("Got Lap Info " + this.regNumber + " " +
+		// message.getLapNumber());
+		this.laps.put(message.getLapNumber(), new Object[] {
+			message.getLapNumber(), message.getPosition(), message.getLapTime()
+		});
+		
+		if (message.getLapNumber() == lapsComplete) {
+			setLastLap(message.getLapTime());
+		}
+
+		setBestLap(message.getLapTime());
+
+		System.out.println(this);
+	}
+
 	private void messageUpdate(RaceInfo message)
 	{
 		this.setRegNumber(message.getRegNumber());
 		this.setPosition(message.getPosition());
-		this.setLaps(message.getLaps());
+		this.setLapsComplete(message.getLaps());
 		this.setTotalTime(message.getTotalTime());
 	}
 
@@ -162,6 +200,15 @@ public class Competitor
 	{
 		changeSupport.firePropertyChange("addData", this.addData, addData);
 		this.addData = addData;
+	}
+
+	private void setBestLap(Duration bestLap)
+	{
+		if (this.bestLap.toInt() == 0 || bestLap.toFloat() < this.bestLap.toFloat()) {
+			Duration oldBestLap = this.bestLap;
+			this.bestLap = bestLap;
+			changeSupport.firePropertyChange("bestLap", oldBestLap, this.bestLap);
+		}
 	}
 
 	private void setClassId(int classId)
@@ -175,6 +222,20 @@ public class Competitor
 		String oldName = this.firstName;
 		this.firstName = firstName;
 		changeSupport.firePropertyChange("firstName", oldName, firstName);
+	}
+
+	private void setLapsComplete(int lapsComplete)
+	{
+		int oldLapsComplete = this.lapsComplete;
+		this.lapsComplete = lapsComplete;
+		changeSupport.firePropertyChange("laps", oldLapsComplete, this.lapsComplete);
+	}
+
+	private void setLastLap(Duration lastLap)
+	{
+		Duration oldLastLap = this.lastLap;
+		this.lastLap = lastLap;
+		changeSupport.firePropertyChange("lastLap", oldLastLap, this.lastLap);
 	}
 
 	private void setLastName(String lastName)
@@ -205,6 +266,13 @@ public class Competitor
 	{
 		changeSupport.firePropertyChange("regNumber", this.regNumber, regNumber);
 		this.regNumber = regNumber;
+	}
+
+	private void setTotalTime(Duration totalTime)
+	{
+		Duration oldTotalTime = this.totalTime;
+		this.totalTime = totalTime;
+		changeSupport.firePropertyChange("totalTime", oldTotalTime, this.totalTime);
 	}
 
 	private void setTransNumber(int transNumber)
@@ -248,6 +316,10 @@ public class Competitor
 
 		if (message.getClass() == CompInfo.class) {
 			instance.messageUpdate((CompInfo) message);
+		}
+
+		if (message.getClass() == LapInfo.class) {
+			instance.messageUpdate((LapInfo) message);
 		}
 
 		instances.put(instance.getRegNumber(), instance);
