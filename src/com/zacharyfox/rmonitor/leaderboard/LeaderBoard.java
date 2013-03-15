@@ -17,16 +17,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EtchedBorder;
-import javax.swing.table.TableRowSorter;
-
 import net.miginfocom.swing.MigLayout;
 
 import com.zacharyfox.rmonitor.entities.Race;
 import javax.swing.JSeparator;
+import javax.swing.JTable;
+import java.awt.Component;
 
 public class LeaderBoard implements ActionListener
 {
@@ -47,8 +46,7 @@ public class LeaderBoard implements ActionListener
 	private JScrollPane resultsScrollPane;
 	private JLabel runName;
 	private JTabbedPane tabbedPane;
-	private JTable leaderBoard;
-	private Table leaderBoardTable = new Table();
+	private LeaderBoardTable leaderBoardTable;
 	private JLabel trackName;
 	private Worker worker;
 	private JLabel elapsedTime;
@@ -98,7 +96,7 @@ public class LeaderBoard implements ActionListener
 		frame = new JFrame();
 		frame.setBackground(SystemColor.activeCaption);
 		frame.getContentPane().setBackground(new Color(220, 220, 220));
-		frame.setBounds(100, 100, 800, 400);
+		frame.setBounds(100, 100, 870, 430);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(
 			new MigLayout("", "[grow][grow]", "[:40.00:40px,grow][:31.00:30.00,grow][][::25.00,grow][240.00,grow]"));
@@ -200,18 +198,19 @@ public class LeaderBoard implements ActionListener
 		panel_2.add(scheduledTime);
 
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane.setFont(new Font("Lucida Grande", Font.PLAIN, 14));
 		frame.getContentPane().add(tabbedPane, "cell 0 4 2 1,grow");
 
 		resultsScrollPane = new JScrollPane();
 		tabbedPane.addTab("Race", null, resultsScrollPane, null);
 
-		leaderBoard = new JTable();
-		leaderBoard.setModel(leaderBoardTable);
-		TableRowSorter<Table> sorter = new TableRowSorter<Table>(leaderBoardTable);
-		leaderBoard.setRowSorter(sorter);
-		sorter.setSortsOnUpdates(true);
-		
-		resultsScrollPane.setViewportView(leaderBoard);
+		leaderBoardTable = new LeaderBoardTable();
+		leaderBoardTable.setRowMargin(2);
+		leaderBoardTable.setRowHeight(18);
+		leaderBoardTable.setFont(new Font("Lucida Grande", Font.PLAIN, 13));
+		leaderBoardTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		leaderBoardTable.setRowSelectionAllowed(false);
+		resultsScrollPane.setViewportView(leaderBoardTable);
 	}
 
 	/**
@@ -253,7 +252,7 @@ public class LeaderBoard implements ActionListener
 		}
 
 		if (evt.getPropertyName().equals("competitorsVersion")) {
-			leaderBoardTable.updateData();
+			((LeaderBoardTableModel) leaderBoardTable.getModel()).updateData();
 		}
 		
 		if (evt.getPropertyName().equals("flagStatus")) {

@@ -5,7 +5,12 @@ import java.util.concurrent.TimeUnit;
 public class Duration
 {
 	private long milliseconds;
-	
+
+	public Duration()
+	{
+		milliseconds = 0;
+	}
+
 	public Duration(float duration)
 	{
 		milliseconds = (long) (duration * 1000);
@@ -31,6 +36,16 @@ public class Duration
 	{
 		return (milliseconds == ((Duration) other).milliseconds);
 	}
+	
+	public boolean isEmpty()
+	{
+		return (milliseconds == 0);
+	}
+
+	public boolean lt(Object other)
+	{
+		return (milliseconds < ((Duration) other).milliseconds);
+	}
 
 	public Float toFloat()
 	{
@@ -45,11 +60,15 @@ public class Duration
 	@Override
 	public String toString()
 	{
+		// if (milliseconds == 0) return "";
 		long hours = TimeUnit.MILLISECONDS.toHours(milliseconds);
-		long minutes = TimeUnit.MILLISECONDS.toMinutes(milliseconds) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(milliseconds));
-		long seconds = TimeUnit.MILLISECONDS.toSeconds(milliseconds) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliseconds));
-		long millis = TimeUnit.MILLISECONDS.toMillis(milliseconds) - TimeUnit.SECONDS.toMillis(TimeUnit.MILLISECONDS.toSeconds(milliseconds));
-		
+		long minutes = TimeUnit.MILLISECONDS.toMinutes(milliseconds)
+			- TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(milliseconds));
+		long seconds = TimeUnit.MILLISECONDS.toSeconds(milliseconds)
+			- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliseconds));
+		long millis = TimeUnit.MILLISECONDS.toMillis(milliseconds)
+			- TimeUnit.SECONDS.toMillis(TimeUnit.MILLISECONDS.toSeconds(milliseconds));
+
 		return String.format("%02d:%02d:%02d.%03d", hours, minutes, seconds, millis);
 	}
 }

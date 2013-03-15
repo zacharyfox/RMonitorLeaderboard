@@ -1,6 +1,6 @@
 package com.zacharyfox.rmonitor.utils.test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 
@@ -8,7 +8,22 @@ import com.zacharyfox.rmonitor.utils.Duration;
 
 public class DurationTest
 {
+	@Test
+	public void testEmpty()
+	{
+		Duration duration = new Duration();
+		
+		assertTrue(duration.isEmpty());
+		assertEquals(0, duration.toInt());
+	}
 	
+	@Test
+	public void testEquals()
+	{
+		assertEquals(new Duration("01:00:00.000"), new Duration("01:00:00"));
+		assertEquals(new Duration("01:00:00.000"), new Duration(3600));
+		assertEquals(new Duration("01:00:00.123"), new Duration((float) 3600.123));
+	}
 
 	@Test
 	public void testFloat()
@@ -39,6 +54,15 @@ public class DurationTest
 	}
 
 	@Test
+	public void testLt()
+	{
+		Duration duration = new Duration();
+		Duration duration_1 = new Duration(1);
+		
+		assertTrue(duration.lt(duration_1));
+	}
+	
+	@Test
 	public void testString()
 	{
 		Float floatVal = (float) 3600.123;
@@ -64,14 +88,6 @@ public class DurationTest
 		assertEquals(intVal, duration.toInt());
 		assertEquals(floatVal, duration.toFloat());
 		assertEquals("01:00:00.000", duration.toString());
-	}
-	
-	@Test
-	public void testEquals()
-	{
-		assertEquals(new Duration("01:00:00.000"), new Duration("01:00:00"));
-		assertEquals(new Duration("01:00:00.000"), new Duration(3600));
-		assertEquals(new Duration("01:00:00.123"), new Duration((float) 3600.123));
 	} 
 
 }

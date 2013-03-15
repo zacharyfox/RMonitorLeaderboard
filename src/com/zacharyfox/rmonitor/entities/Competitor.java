@@ -104,6 +104,19 @@ public class Competitor
 		return position;
 	}
 
+	public int getPositionInClass()
+	{
+		int positionInClass = 1;
+		
+		for (Competitor competitor : instances.values()) {
+			if (competitor.classId == classId && competitor.position < position) {
+				positionInClass += 1;
+			}
+		}
+		
+		return positionInClass;
+	}
+
 	public String getRegNumber()
 	{
 		return regNumber;
@@ -128,7 +141,7 @@ public class Competitor
 	{
 		changeSupport.removePropertyChangeListener(property, l);
 	}
-
+	
 	@Override
 	public String toString()
 	{
@@ -192,8 +205,9 @@ public class Competitor
 
 	private void setAddData(String addData)
 	{
-		changeSupport.firePropertyChange("addData", this.addData, addData);
+		String oldAddData = this.addData;
 		this.addData = addData;
+		changeSupport.firePropertyChange("addData", oldAddData, this.addData);
 	}
 
 	private void setBestLap(Duration bestLap)
@@ -207,8 +221,9 @@ public class Competitor
 
 	private void setClassId(int classId)
 	{
-		changeSupport.firePropertyChange("classId", this.classId, classId);
+		int oldClassId = this.classId;
 		this.classId = classId;
+		changeSupport.firePropertyChange("classId", oldClassId, this.classId);
 	}
 
 	private void setFirstName(String firstName)
@@ -222,7 +237,7 @@ public class Competitor
 	{
 		int oldLapsComplete = this.lapsComplete;
 		this.lapsComplete = lapsComplete;
-		changeSupport.firePropertyChange("laps", oldLapsComplete, this.lapsComplete);
+		changeSupport.firePropertyChange("lapsComplete", oldLapsComplete, this.lapsComplete);
 	}
 
 	private void setLastLap(Duration lastLap)
@@ -234,32 +249,37 @@ public class Competitor
 
 	private void setLastName(String lastName)
 	{
-		changeSupport.firePropertyChange("lastName", this.lastName, lastName);
+		String oldLastName = this.lastName;
 		this.lastName = lastName;
+		changeSupport.firePropertyChange("lastName", oldLastName, this.lastName);
 	}
 
 	private void setNationality(String nationality)
 	{
-		changeSupport.firePropertyChange("nationality", this.nationality, nationality);
+		String oldNationality = this.nationality;
 		this.nationality = nationality;
+		changeSupport.firePropertyChange("nationality", oldNationality, this.nationality);
 	}
 
-	private void setNumber(String string)
+	private void setNumber(String number)
 	{
-		changeSupport.firePropertyChange("number", this.number, string);
-		this.number = string;
+		String oldNumber = this.number;
+		this.number = number;
+		changeSupport.firePropertyChange("number", oldNumber, this.number);
 	}
 
 	private void setPosition(int position)
 	{
-		changeSupport.firePropertyChange("position", this.position, position);
+		int oldPosition = this.position;
 		this.position = position;
+		changeSupport.firePropertyChange("position", oldPosition, this.position);
 	}
 
 	private void setRegNumber(String regNumber)
 	{
-		changeSupport.firePropertyChange("regNumber", this.regNumber, regNumber);
+		String oldRegNumber = this.regNumber;
 		this.regNumber = regNumber;
+		changeSupport.firePropertyChange("regNumber", oldRegNumber, this.regNumber);
 	}
 
 	private void setTotalTime(Duration totalTime)
@@ -271,8 +291,9 @@ public class Competitor
 
 	private void setTransNumber(int transNumber)
 	{
-		changeSupport.firePropertyChange("transNumber", this.transNumber, transNumber);
+		int oldTransNumber = this.transNumber;
 		this.transNumber = transNumber;
+		changeSupport.firePropertyChange("transNumber", oldTransNumber, this.transNumber);
 	}
 
 	public static Competitor getByPosition(int position)
@@ -285,6 +306,23 @@ public class Competitor
 		return null;
 	}
 
+	public static Duration getFastestLap()
+	{
+		Duration fastestLap = new Duration();
+		Duration competitorBestLap;
+		
+		for (Competitor competitor : instances.values()) {
+			competitorBestLap = competitor.getBestLap(); 
+			if (competitorBestLap.toInt() == 0) continue; 
+			
+			if (fastestLap.isEmpty() || competitorBestLap.lt(fastestLap)) {
+				fastestLap = competitorBestLap;
+			}
+		}
+		
+		return fastestLap;
+	}
+
 	public static Competitor getInstance(String regNumber)
 	{
 		if (instances.containsKey(regNumber)) {
@@ -292,10 +330,15 @@ public class Competitor
 		}
 		return null;
 	}
-
+	
 	public static HashMap<String, Competitor> getInstances()
 	{
 		return instances;
+	}
+
+	public static void reset()
+	{
+		instances = new HashMap<String, Competitor>();
 	}
 
 	public static void updateOrCreate(RMonitorMessage message)
