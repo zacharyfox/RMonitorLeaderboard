@@ -13,19 +13,19 @@ import com.zacharyfox.rmonitor.utils.Duration;
 public class Competitor
 {
 	private String addData = "";
-	private Duration bestLap = new Duration(0);
+	private Duration bestLap = new Duration();
 	private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 	private int classId = 0;
 	private String firstName = "";
 	private HashMap<Integer, Object[]> laps = new HashMap<Integer, Object[]>();
 	private int lapsComplete = 0;
-	private Duration lastLap = new Duration(0);
+	private Duration lastLap = new Duration();
 	private String lastName = "";
 	private String nationality = "";
 	private String number = "";
 	private int position = 0;
 	private String regNumber = "";
-	private Duration totalTime = new Duration(0);
+	private Duration totalTime = new Duration();
 	private int transNumber = 0;
 	private static HashMap<String, Competitor> instances = new HashMap<String, Competitor>();
 

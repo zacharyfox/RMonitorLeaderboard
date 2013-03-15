@@ -17,14 +17,14 @@ public class Race
 	private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 
 	private int competitorsVersion = 0;
-	private Duration elapsedTime = new Duration(0);
+	private Duration elapsedTime = new Duration();
 	private String flagStatus = "";
 	private int id = 0;
 	private int lapsToGo = 0;
 	private String name = "";
-	private Duration scheduledTime = new Duration(0);
-	private Duration timeOfDay = new Duration(0);
-	private Duration timeToGo = new Duration(0);
+	private Duration scheduledTime = new Duration();
+	private Duration timeOfDay = new Duration();
+	private Duration timeToGo = new Duration();
 	private Float trackLength = (float) 0.0;
 	private String trackName = "";
 
