@@ -11,14 +11,16 @@ import com.zacharyfox.rmonitor.entities.Race;
 import com.zacharyfox.rmonitor.leaderboard.frames.ConnectFrame;
 import com.zacharyfox.rmonitor.message.Factory;
 import com.zacharyfox.rmonitor.utils.Connection;
+import com.zacharyfox.rmonitor.utils.Recorder;
 
 public class Worker extends SwingWorker<Integer, String>
 {
-	private JButton connectButton;
+	private final JButton connectButton;
 	private Connection connection;
-	private JTextField ip;
-	private JTextField port;
-	private Race race;
+	private final JTextField ip;
+	private final JTextField port;
+	private final Race race;
+	private Recorder recorder;
 
 	public Worker(ConnectFrame connectFrame, Race race)
 	{
@@ -26,6 +28,16 @@ public class Worker extends SwingWorker<Integer, String>
 		this.port = connectFrame.port;
 		this.connectButton = connectFrame.connectButton;
 		this.race = race;
+	}
+
+	public void removeRecorder()
+	{
+		this.recorder = null;
+	}
+
+	public void setRecorder(Recorder recorder)
+	{
+		this.recorder = recorder;
 	}
 
 	@Override
@@ -86,6 +98,9 @@ public class Worker extends SwingWorker<Integer, String>
 
 			if (message.substring(0, 1).equals("$")) {
 				race.update(Factory.getMessage(message));
+				if (recorder != null) {
+					recorder.push(message);
+				}
 			}
 		}
 	}

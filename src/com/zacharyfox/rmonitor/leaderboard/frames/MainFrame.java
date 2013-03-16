@@ -10,7 +10,6 @@ import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -24,9 +23,6 @@ import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -38,29 +34,27 @@ import javax.swing.UIManager;
 import net.miginfocom.swing.MigLayout;
 
 import com.zacharyfox.rmonitor.entities.Race;
+import com.zacharyfox.rmonitor.leaderboard.LeaderBoardMenuBar;
 import com.zacharyfox.rmonitor.leaderboard.LeaderBoardTable;
 import com.zacharyfox.rmonitor.leaderboard.LeaderBoardTableModel;
 import com.zacharyfox.rmonitor.leaderboard.Worker;
 import com.zacharyfox.rmonitor.utils.Duration;
+import com.zacharyfox.rmonitor.utils.Recorder;
 
 public class MainFrame extends JFrame implements ActionListener
 {
-	private final JMenuItem aboutMenuItem;
-	private final JMenuItem connectMenuItem;
 	private final JLabel elapsedTime;
-	private final JMenu fileMenu;
 	private final JPanel flagColor;
 	private final JPanel flagColor_1;
 	private final JPanel flagColor_2;
 	private final JPanel flagColor_3;
 	private final JPanel flagColor_4;
-	private final JMenuItem fullScreenMenuItem;
-	private final JMenu helpMenu;
 	private final JLabel lblNewLabel_1;
 	private final JLabel lblNewLabel_2;
 	private final LeaderBoardTable leaderBoardTable;
-	private final JMenuBar menuBar;
+	private final LeaderBoardMenuBar menuBar;
 	private Race race;
+	private Recorder recorder;
 	private final JScrollPane resultsScrollPane;
 	private final JPanel resultsTablePanel;
 	private final JLabel runName;
@@ -69,7 +63,6 @@ public class MainFrame extends JFrame implements ActionListener
 	private final JLabel timeToGo;
 	private final JPanel titleBar;
 	private final JLabel trackName;
-	private final JMenu viewMenu;
 	private Worker worker;
 
 	private static final long serialVersionUID = -743830529485841322L;
@@ -167,59 +160,8 @@ public class MainFrame extends JFrame implements ActionListener
 		leaderBoardTable.setRowSelectionAllowed(false);
 		resultsScrollPane.setViewportView(leaderBoardTable);
 
-		menuBar = new JMenuBar();
-		menuBar.setBackground(SystemColor.menu);
-		menuBar.setBorder(UIManager.getBorder("Menu.border"));
+		menuBar = new LeaderBoardMenuBar(this);
 		this.setJMenuBar(menuBar);
-
-		fileMenu = new JMenu("File");
-		menuBar.add(fileMenu);
-
-		connectMenuItem = new JMenuItem("Connection");
-		connectMenuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt)
-			{
-				ConnectFrame newFrame = ConnectFrame.getInstance(MainFrame.this);
-				newFrame.setVisible(true);
-			}
-		});
-
-		fileMenu.add(connectMenuItem);
-
-		viewMenu = new JMenu("View");
-		menuBar.add(viewMenu);
-
-		fullScreenMenuItem = new JMenuItem("Full Screen");
-		fullScreenMenuItem.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				MainFrame.this.goFullScreen();
-			}
-		});
-		viewMenu.add(fullScreenMenuItem);
-
-		helpMenu = new JMenu("Help");
-		helpMenu.setBorder(UIManager.getBorder("MenuItem.border"));
-		helpMenu.setBackground(SystemColor.menu);
-		menuBar.add(helpMenu);
-
-		aboutMenuItem = new JMenuItem("About");
-		aboutMenuItem.setBorder(UIManager.getBorder("MenuItem.border"));
-		aboutMenuItem.setBackground(SystemColor.menu);
-		aboutMenuItem.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				AboutFrame newFrame = new AboutFrame();
-				newFrame.setVisible(true);
-			}
-		});
-
-		helpMenu.add(aboutMenuItem);
 	}
 
 	@Override
@@ -235,6 +177,9 @@ public class MainFrame extends JFrame implements ActionListener
 				}
 			});
 			worker = new Worker(ConnectFrame.getInstance(this), race);
+			if (recorder != null) {
+				worker.setRecorder(recorder);
+			}
 			worker.execute();
 		} else if (e.getActionCommand().equals("Disconnect")) {
 			worker.cancel(true);
@@ -243,7 +188,7 @@ public class MainFrame extends JFrame implements ActionListener
 		return;
 	}
 
-	private void goFullScreen()
+	public void goFullScreen()
 	{
 		final Cursor oldCursor = getContentPane().getCursor();
 		final Rectangle oldBounds = getBounds();
@@ -289,6 +234,20 @@ public class MainFrame extends JFrame implements ActionListener
 			 */
 		} else {
 			setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
+		}
+	}
+
+	public void removeRecorder()
+	{
+		this.recorder = null;
+		worker.removeRecorder();
+	}
+
+	public void setRecorder(Recorder recorder)
+	{
+		if (this.recorder == null) {
+			this.recorder = recorder;
+			worker.setRecorder(recorder);
 		}
 	}
 
