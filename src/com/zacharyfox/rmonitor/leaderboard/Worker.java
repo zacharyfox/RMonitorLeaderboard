@@ -3,9 +3,12 @@ package com.zacharyfox.rmonitor.leaderboard;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 import com.zacharyfox.rmonitor.entities.Race;
+import com.zacharyfox.rmonitor.leaderboard.frames.ConnectFrame;
 import com.zacharyfox.rmonitor.message.Factory;
 import com.zacharyfox.rmonitor.utils.Connection;
 
@@ -13,15 +16,15 @@ public class Worker extends SwingWorker<Integer, String>
 {
 	private JButton connectButton;
 	private Connection connection;
-	private String ip;
-	private int port;
+	private JTextField ip;
+	private JTextField port;
 	private Race race;
 
-	public Worker(String ip, int port, JButton connectButton, Race race)
+	public Worker(ConnectFrame connectFrame, Race race)
 	{
-		this.ip = ip;
-		this.port = port;
-		this.connectButton = connectButton;
+		this.ip = connectFrame.ip;
+		this.port = connectFrame.port;
+		this.connectButton = connectFrame.connectButton;
 		this.race = race;
 	}
 
@@ -32,7 +35,7 @@ public class Worker extends SwingWorker<Integer, String>
 
 		try {
 			publish("connecting");
-			connection = new Connection(ip, port);
+			connection = new Connection(ip.getText(), Integer.parseInt(port.getText()));
 			publish("connected");
 			while ((line = connection.readLine()) != null && !isCancelled()) {
 				publish(line);
@@ -63,7 +66,10 @@ public class Worker extends SwingWorker<Integer, String>
 
 			if ("connected".equals(message)) {
 				connectButton.setText("Disconnect");
+				ip.setEnabled(false);
+				port.setEnabled(false);
 				connectButton.setEnabled(true);
+				SwingUtilities.windowForComponent(connectButton).setVisible(false);
 			}
 
 			if ("disconnecting".equals(message)) {
@@ -73,6 +79,8 @@ public class Worker extends SwingWorker<Integer, String>
 
 			if ("disconnected".equals(message)) {
 				connectButton.setText("Connect");
+				ip.setEnabled(true);
+				port.setEnabled(true);
 				connectButton.setEnabled(true);
 			}
 

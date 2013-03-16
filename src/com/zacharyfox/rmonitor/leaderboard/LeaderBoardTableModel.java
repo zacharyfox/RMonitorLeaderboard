@@ -19,10 +19,7 @@ public class LeaderBoardTableModel extends AbstractTableModel
 	public LeaderBoardTableModel()
 	{
 		super();
-		// data.add(new Object[]{"", "", "", "", "", "", "", "", "", ""});
-		
-		data.add(new Object[]{2, 2, "1", "F1", "2Testing Name", 0, "00:00:00.000", "00:00:00.000", "00:00:00.000", "00:00:00.000"});
-		data.add(new Object[]{1, 1, "1", "F1", "1Testing Name", 0, "00:00:00.000", "00:00:00.000", "00:00:00.000", "00:00:00.000"});
+		data.add(new Object[]{"", "", "", "", "", "", "", "", "", ""});
 	}
 	
 	@Override
