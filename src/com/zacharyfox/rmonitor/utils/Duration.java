@@ -56,11 +56,36 @@ public class Duration
 	{
 		return (int) milliseconds / 1000;
 	}
-
+	
+	public String toString()
+	{
+		String string = "";
+		
+		long hours = TimeUnit.MILLISECONDS.toHours(milliseconds);
+		long minutes = TimeUnit.MILLISECONDS.toMinutes(milliseconds)
+			- TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(milliseconds));
+		long seconds = TimeUnit.MILLISECONDS.toSeconds(milliseconds)
+			- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliseconds));
+		long millis = TimeUnit.MILLISECONDS.toMillis(milliseconds)
+			- TimeUnit.SECONDS.toMillis(TimeUnit.MILLISECONDS.toSeconds(milliseconds));
+		
+		if (hours != 0) string += String.format("%d:", hours);
+		
+		if (!string.equals("")) {
+			string += String.format("%02d:%02d", minutes, seconds);
+		} else {
+			string = String.format("%d:%02d", minutes, seconds);
+		}
+		
+		if (millis != 0) string += String.format(".%03d", millis);
+		
+		return string;
+	}
+	/*
 	@Override
 	public String toString()
 	{
-		// if (milliseconds == 0) return "";
+		if (milliseconds == 0) return "";
 		long hours = TimeUnit.MILLISECONDS.toHours(milliseconds);
 		long minutes = TimeUnit.MILLISECONDS.toMinutes(milliseconds)
 			- TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(milliseconds));
@@ -71,4 +96,5 @@ public class Duration
 
 		return String.format("%02d:%02d:%02d.%03d", hours, minutes, seconds, millis);
 	}
+	*/
 }

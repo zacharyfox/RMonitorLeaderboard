@@ -18,7 +18,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
-import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
@@ -29,6 +28,9 @@ import com.zacharyfox.rmonitor.entities.Race;
 import com.zacharyfox.rmonitor.leaderboard.LeaderBoardTable;
 import com.zacharyfox.rmonitor.leaderboard.LeaderBoardTableModel;
 import com.zacharyfox.rmonitor.leaderboard.Worker;
+import com.zacharyfox.rmonitor.utils.Duration;
+
+import java.awt.FlowLayout;
 
 public class MainFrame extends JFrame implements ActionListener
 {
@@ -45,105 +47,109 @@ public class MainFrame extends JFrame implements ActionListener
 	private JMenu helpMenu;
 	private JLabel lblNewLabel_1;
 	private JLabel lblNewLabel_2;
-	private JLabel lblNewLabel_3;
 	private LeaderBoardTable leaderBoardTable;
 	private JMenuBar menuBar;
-	private JPanel panel_1;
-	private JPanel panel_2;
+	private JPanel titleBar;
 	private Race race;
 	private JScrollPane resultsScrollPane;
 	private JLabel runName;
-	private JLabel scheduledTime;
-	private JSeparator separator;
-	private JTabbedPane tabbedPane;
 	private JLabel timeToGo;
 	private JLabel trackName;
 	private Worker worker;
 	private static final long serialVersionUID = -743830529485841322L;
+	private JPanel resultsTablePanel;
+	private JPanel timeBar;
+	private JSeparator separator;
 
 	public MainFrame()
 	{
+		Font systemLabelFont = UIManager.getFont("Label.font");
 		this.setBounds(100, 100, 870, 430);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.getContentPane().setLayout(
-			new MigLayout("", "[grow][grow]", "[:31.00:30.00,grow][][::25.00,grow][240.00,grow]"));
+		this.getContentPane().setLayout(new MigLayout("", "[grow][grow]", "[][10:10:10][][][grow]"));
 
-		panel_1 = new JPanel();
-		this.getContentPane().add(panel_1, "cell 0 0 2 1,grow");
-		panel_1.setLayout(new GridLayout(1, 0, 0, 0));
+		titleBar = new JPanel();
+		this.getContentPane().add(titleBar, "cell 0 0 2 1,grow");
+		titleBar.setLayout(new GridLayout(1, 0, 0, 0));
 
-		runName = new JLabel("Unknown Run");
-		panel_1.add(runName);
-		runName.setFont(new Font("Lucida Grande", Font.BOLD, 16));
+		runName = new JLabel("-");
+		runName.setFont(new Font(systemLabelFont.getName(), Font.BOLD, systemLabelFont.getSize() + 3));
+		titleBar.add(runName);
 
-		flagColor = new JPanel();
-		panel_1.add(flagColor);
-		flagColor.setBackground(null);
-		flagColor.setBorder(null);
-		flagColor.setLayout(new GridLayout(2, 2, 0, 0));
-
-		flagColor_1 = new JPanel();
-		flagColor_1.setBorder(null);
-		flagColor.add(flagColor_1);
-
-		flagColor_2 = new JPanel();
-		flagColor_2.setBorder(null);
-		flagColor.add(flagColor_2);
-
-		flagColor_3 = new JPanel();
-		flagColor_3.setBorder(null);
-		flagColor.add(flagColor_3);
-
-		flagColor_4 = new JPanel();
-		flagColor_4.setBorder(null);
-		flagColor.add(flagColor_4);
-
-		trackName = new JLabel("Unknown Track");
-		panel_1.add(trackName);
-		trackName.setFont(new Font("Lucida Grande", Font.BOLD, 16));
+		trackName = new JLabel("-");
+		trackName.setFont(new Font(systemLabelFont.getName(), Font.BOLD, systemLabelFont.getSize() + 3));
 		trackName.setHorizontalAlignment(SwingConstants.RIGHT);
+		titleBar.add(trackName);
 
 		separator = new JSeparator();
-		separator.setPreferredSize(new Dimension(32767, 12));
-		separator.setForeground(new Color(169, 169, 169));
-		this.getContentPane().add(separator, "cell 0 1 2 1");
+		separator.setForeground(Color.BLACK);
+		separator.setBorder(null);
+		getContentPane().add(separator, "cell 0 1 2 1,growx,aligny top");
 
-		panel_2 = new JPanel();
-		this.getContentPane().add(panel_2, "cell 0 2 2 1,grow");
-		panel_2.setLayout(new GridLayout(1, 0, 0, 0));
+		timeBar = new JPanel();
+		getContentPane().add(timeBar, "cell 0 3 2 1,growx");
+		timeBar.setLayout(new MigLayout("", "[50:50:50][grow][grow][grow]", "[][]"));
 
-		lblNewLabel_1 = new JLabel("Elapsed Time:");
-		panel_2.add(lblNewLabel_1);
+		flagColor = new JPanel();
+		timeBar.add(flagColor, "flowx,cell 0 0 1 2,grow");
+		flagColor.setBackground(null);
+		flagColor.setBorder(null);
+		flagColor.setLayout(new GridLayout(0, 2, 0, 0));
 
-		elapsedTime = new JLabel("00:00:00");
-		panel_2.add(elapsedTime);
+		flagColor_1 = new JPanel();
+		flagColor.add(flagColor_1);
+		flagColor_1.setBorder(null);
+		flagColor_1.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 
-		lblNewLabel_2 = new JLabel("Time To Go:");
-		panel_2.add(lblNewLabel_2);
+		flagColor_2 = new JPanel();
+		flagColor.add(flagColor_2);
+		flagColor_2.setBorder(null);
+		flagColor_2.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 
-		timeToGo = new JLabel("00:00:00");
-		panel_2.add(timeToGo);
+		flagColor_3 = new JPanel();
+		flagColor.add(flagColor_3);
+		flagColor_3.setBorder(null);
+		flagColor_3.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 
-		lblNewLabel_3 = new JLabel("Race Length:");
-		panel_2.add(lblNewLabel_3);
+		flagColor_4 = new JPanel();
+		flagColor.add(flagColor_4);
+		flagColor_4.setBorder(null);
+		flagColor_4.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 
-		scheduledTime = new JLabel("00:00:00");
-		panel_2.add(scheduledTime);
+		lblNewLabel_1 = new JLabel("Elapsed:");
+		lblNewLabel_1.setHorizontalTextPosition(SwingConstants.RIGHT);
+		lblNewLabel_1.setHorizontalAlignment(SwingConstants.RIGHT);
+		timeBar.add(lblNewLabel_1, "cell 2 0");
 
-		tabbedPane = new JTabbedPane(SwingConstants.TOP);
-		tabbedPane.setFont(new Font("Lucida Grande", Font.PLAIN, 14));
-		this.getContentPane().add(tabbedPane, "cell 0 3 2 1,grow");
+		lblNewLabel_2 = new JLabel("To Go:");
+		lblNewLabel_2.setHorizontalAlignment(SwingConstants.RIGHT);
+		timeBar.add(lblNewLabel_2, "cell 3 0");
+
+		elapsedTime = new JLabel(new Duration().toString());
+		elapsedTime.setHorizontalAlignment(SwingConstants.RIGHT);
+		elapsedTime.setFont(new Font(systemLabelFont.getName(), Font.BOLD, systemLabelFont.getSize() + 3));
+		timeBar.add(elapsedTime, "cell 2 1");
+
+		timeToGo = new JLabel(new Duration().toString());
+		timeToGo.setHorizontalAlignment(SwingConstants.RIGHT);
+		timeToGo.setFont(new Font(systemLabelFont.getName(), Font.BOLD, systemLabelFont.getSize() + 3));
+		timeBar.add(timeToGo, "cell 3 1");
+
+		resultsTablePanel = new JPanel();
+		getContentPane().add(resultsTablePanel, "cell 0 4 2 1,grow");
+		resultsTablePanel.setLayout(new GridLayout(1, 0, 0, 0));
 
 		resultsScrollPane = new JScrollPane();
-		tabbedPane.addTab("Race", null, resultsScrollPane, null);
+		resultsTablePanel.add(resultsScrollPane);
 
 		leaderBoardTable = new LeaderBoardTable();
+		leaderBoardTable.setIntercellSpacing(new Dimension(10, 1));
+		leaderBoardTable.setFillsViewportHeight(true);
 		leaderBoardTable.setShowVerticalLines(false);
 		leaderBoardTable.setShowHorizontalLines(false);
 		leaderBoardTable.setShowGrid(false);
 		leaderBoardTable.setRowMargin(2);
 		leaderBoardTable.setRowHeight(18);
-		leaderBoardTable.setFont(new Font("Lucida Grande", Font.PLAIN, 13));
 		leaderBoardTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		leaderBoardTable.setRowSelectionAllowed(false);
 		resultsScrollPane.setViewportView(leaderBoardTable);
@@ -243,15 +249,11 @@ public class MainFrame extends JFrame implements ActionListener
 		}
 
 		if (evt.getPropertyName().equals("elapsedTime")) {
-			elapsedTime.setText(evt.getNewValue().toString());
+			elapsedTime.setText(((Duration) evt.getNewValue()).toString());
 		}
 
 		if (evt.getPropertyName().equals("timeToGo")) {
-			timeToGo.setText(evt.getNewValue().toString());
-		}
-
-		if (evt.getPropertyName().equals("scheduledTime")) {
-			scheduledTime.setText(evt.getNewValue().toString());
+			timeToGo.setText(((Duration) evt.getNewValue()).toString());
 		}
 
 		if (evt.getPropertyName().equals("competitorsVersion")) {

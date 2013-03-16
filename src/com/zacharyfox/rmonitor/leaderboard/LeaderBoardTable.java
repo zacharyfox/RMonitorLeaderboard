@@ -35,12 +35,10 @@ public class LeaderBoardTable extends JTable
 		
 		for (Integer column : smallColumns) {
 			this.getColumnModel().getColumn(column).setPreferredWidth(smallColumnSize);
-			this.getColumnModel().getColumn(column).setMaxWidth(smallColumnSize + (int) (smallColumnSize * 1.10));
 		}
 		
 		for (Integer column : timeColumns) {
 			this.getColumnModel().getColumn(column).setPreferredWidth(timeColumnSize);
-			this.getColumnModel().getColumn(column).setMaxWidth(timeColumnSize + (int) (timeColumnSize * 1.10));
 		}
 	}
 }

@@ -3,13 +3,7 @@ package com.zacharyfox.rmonitor.entities;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
-import com.zacharyfox.rmonitor.message.CompInfo;
-import com.zacharyfox.rmonitor.message.Heartbeat;
-import com.zacharyfox.rmonitor.message.LapInfo;
-import com.zacharyfox.rmonitor.message.RMonitorMessage;
-import com.zacharyfox.rmonitor.message.RaceInfo;
-import com.zacharyfox.rmonitor.message.RunInfo;
-import com.zacharyfox.rmonitor.message.SettingInfo;
+import com.zacharyfox.rmonitor.message.*;
 import com.zacharyfox.rmonitor.utils.Duration;
 
 public class Race
@@ -101,6 +95,10 @@ public class Race
 					|| message.getClass() == LapInfo.class) {
 				Competitor.updateOrCreate(message);
 				setCompetitorsVersion();
+			}
+			
+			if (message.getClass() == ClassInfo.class) {
+				RaceClass.update((ClassInfo) message);
 			}
 		}
 	}

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import javax.swing.table.AbstractTableModel;
 
 import com.zacharyfox.rmonitor.entities.Competitor;
+import com.zacharyfox.rmonitor.entities.RaceClass;
 
 public class LeaderBoardTableModel extends AbstractTableModel
 {
@@ -77,7 +78,7 @@ public class LeaderBoardTableModel extends AbstractTableModel
 	private Object[] getRow(Competitor competitor)
 	{
 		return new Object[] {
-			competitor.getPosition(), competitor.getPositionInClass(), competitor.getRegNumber(), competitor.getClassId(),
+			competitor.getPosition(), competitor.getPositionInClass(), competitor.getRegNumber(), RaceClass.getClassName(competitor.getClassId()),
 			competitor.getFirstName() + " " + competitor.getLastName(), competitor.getLapsComplete(),
 			competitor.getTotalTime(), competitor.getLastLap(), competitor.getBestLap(), competitor.getAvgLap(), ""
 		};
