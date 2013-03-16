@@ -30,7 +30,7 @@ public class DurationTest
 	{
 		Float floatVal = (float) 3600.123;
 		int intVal = 3600;
-		String stringVal = "01:00:00.123";
+		String stringVal = "1:00:00.123";
 		
 		Duration duration = new Duration(floatVal);
 
@@ -44,7 +44,7 @@ public class DurationTest
 	{
 		Float floatVal = (float) 3600.0;
 		int intVal = 3600;
-		String stringVal = "01:00:00.000";
+		String stringVal = "1:00:00";
 		
 		Duration duration = new Duration(intVal);
 
@@ -73,7 +73,7 @@ public class DurationTest
 
 		assertEquals(intVal, duration.toInt());
 		assertEquals(floatVal, duration.toFloat());
-		assertEquals(stringVal, duration.toString());
+		assertEquals("1:00:00.123", duration.toString());
 	}
 	
 	@Test
@@ -87,7 +87,7 @@ public class DurationTest
 
 		assertEquals(intVal, duration.toInt());
 		assertEquals(floatVal, duration.toFloat());
-		assertEquals("01:00:00.000", duration.toString());
+		assertEquals("1:00:00", duration.toString());
 	} 
 
 }

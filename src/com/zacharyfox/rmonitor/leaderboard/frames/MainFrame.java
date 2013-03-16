@@ -1,15 +1,27 @@
 package com.zacharyfox.rmonitor.leaderboard.frames;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -19,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
@@ -30,36 +43,36 @@ import com.zacharyfox.rmonitor.leaderboard.LeaderBoardTableModel;
 import com.zacharyfox.rmonitor.leaderboard.Worker;
 import com.zacharyfox.rmonitor.utils.Duration;
 
-import java.awt.FlowLayout;
-
 public class MainFrame extends JFrame implements ActionListener
 {
-	private JMenuItem aboutMenuItem;
-
-	private JMenuItem connectMenuItem;
-	private JLabel elapsedTime;
-	private JMenu fileMenu;
-	private JPanel flagColor;
-	private JPanel flagColor_1;
-	private JPanel flagColor_2;
-	private JPanel flagColor_3;
-	private JPanel flagColor_4;
-	private JMenu helpMenu;
-	private JLabel lblNewLabel_1;
-	private JLabel lblNewLabel_2;
-	private LeaderBoardTable leaderBoardTable;
-	private JMenuBar menuBar;
-	private JPanel titleBar;
+	private final JMenuItem aboutMenuItem;
+	private final JMenuItem connectMenuItem;
+	private final JLabel elapsedTime;
+	private final JMenu fileMenu;
+	private final JPanel flagColor;
+	private final JPanel flagColor_1;
+	private final JPanel flagColor_2;
+	private final JPanel flagColor_3;
+	private final JPanel flagColor_4;
+	private final JMenuItem fullScreenMenuItem;
+	private final JMenu helpMenu;
+	private final JLabel lblNewLabel_1;
+	private final JLabel lblNewLabel_2;
+	private final LeaderBoardTable leaderBoardTable;
+	private final JMenuBar menuBar;
 	private Race race;
-	private JScrollPane resultsScrollPane;
-	private JLabel runName;
-	private JLabel timeToGo;
-	private JLabel trackName;
+	private final JScrollPane resultsScrollPane;
+	private final JPanel resultsTablePanel;
+	private final JLabel runName;
+	private final JSeparator separator;
+	private final JPanel timeBar;
+	private final JLabel timeToGo;
+	private final JPanel titleBar;
+	private final JLabel trackName;
+	private final JMenu viewMenu;
 	private Worker worker;
+
 	private static final long serialVersionUID = -743830529485841322L;
-	private JPanel resultsTablePanel;
-	private JPanel timeBar;
-	private JSeparator separator;
 
 	public MainFrame()
 	{
@@ -174,6 +187,20 @@ public class MainFrame extends JFrame implements ActionListener
 
 		fileMenu.add(connectMenuItem);
 
+		viewMenu = new JMenu("View");
+		menuBar.add(viewMenu);
+
+		fullScreenMenuItem = new JMenuItem("Full Screen");
+		fullScreenMenuItem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				MainFrame.this.goFullScreen();
+			}
+		});
+		viewMenu.add(fullScreenMenuItem);
+
 		helpMenu = new JMenu("Help");
 		helpMenu.setBorder(UIManager.getBorder("MenuItem.border"));
 		helpMenu.setBackground(SystemColor.menu);
@@ -214,6 +241,55 @@ public class MainFrame extends JFrame implements ActionListener
 		}
 
 		return;
+	}
+
+	private void goFullScreen()
+	{
+		final Cursor oldCursor = getContentPane().getCursor();
+		final Rectangle oldBounds = getBounds();
+		final GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+
+		if (gd.isFullScreenSupported()) {
+			try {
+				setCursor(getToolkit().createCustomCursor(new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB),
+					new Point(0, 0), "null"));
+				dispose();
+				menuBar.setVisible(false);
+				setUndecorated(true);
+				pack();
+				setVisible(true);
+				gd.setFullScreenWindow(this);
+
+				InputMap inputMap = getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+				final ActionMap actionMap = getRootPane().getActionMap();
+
+				inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, true), "escAction");
+				actionMap.put("escAction", new AbstractAction() {
+					private static final long serialVersionUID = -2399289576909037389L;
+
+					@Override
+					public void actionPerformed(ActionEvent evt)
+					{
+						actionMap.remove(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, true));
+						MainFrame.this.setCursor(oldCursor);
+						gd.setFullScreenWindow(null);
+						MainFrame.this.dispose();
+						menuBar.setVisible(true);
+						MainFrame.this.setUndecorated(false);
+						MainFrame.this.pack();
+						MainFrame.this.setBounds(oldBounds);
+						MainFrame.this.setVisible(true);
+					}
+				});
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			/*
+			 * finally { gd.setFullScreenWindow(null); }
+			 */
+		} else {
+			setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
+		}
 	}
 
 	private void setFlagColor(String status)

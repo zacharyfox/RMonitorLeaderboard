@@ -15,6 +15,7 @@ public class LeaderBoard
 	public static void main(String[] args)
 	{
 		try {
+			System.setProperty("apple.awt.fullscreenhidecursor","true");
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 			System.setProperty("com.apple.mrj.application.apple.menu.about.name", "RMonitorLeaderboard");
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

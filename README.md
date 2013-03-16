@@ -4,7 +4,7 @@ RMonitor Leaderboard
 RMonitor Leaderboard is a swing application designed for displaying race summary information from an rmonitor feed over
 tcp, such as the one provided by the MyLaps Orbits software.
 
-![Screenshot](/screenshot.png)
+![Screenshot](/docs/screenshot.png)
 
 Protocol information was taken from here: http://www.imsatiming.com/software/Protocols/AMB%20RMonitor%20Timing%20Protocol.pdf
 
@@ -18,20 +18,12 @@ Building the Application
 
 // TODO
 
-Packages
---------
+LIbrary Packages
+----------------
 
 ### com.zacharyfox.rmonitor.entities
 
 This package contains the models for the race and competitors.
-
-### com.zacharyfox.rmonitor.entities.test
-
-Tests for the above.
-
-### com.zacharyfox.rmonitor.leaderboard
-
-This package contains the swing application and related UI classes.
 
 ### com.zacharyfox.rmonitor.message
 
@@ -43,14 +35,28 @@ from an ascii string. Example usage below (returns a Heartbeat):
 	String line = "$F,14,\"00:12:45\",\"13:34:23\",\"00:09:47\",\"Green\"";
 	RMonitorMessage message = Factory.getMessage(line);
 
-### com.zacharyfox.rmonitor.message.test
-
-Tests for the above.
-
 ### com.zacharyfox.rmonitor.utils
 
-Contains the utility classes Connection and Duration.
+#### Duration
 
-### com.zacharyfox.rmonitor.utils.test
+Duration takes time values as strings ("00:01:23.456"), integers (milliseconds), or floats (seconds) supplied by the
+feed and stores them as milliseconds.
 
-Tests for the above
+	import com.zacharyfox.rmonitor.utils.Duration
+	
+	Duration duration = new Duration("00:01:23.456");
+
+#### Connection
+
+Connection extends Socket and contains a BufferedLineReader.
+
+	import com.zacharyfox.rmonitor.utils.Connection;
+	
+	String ip = "127.0.0.1";
+	Integer port = 50000;
+	Connection connection = new Connection(ip, port);
+	
+	while ((line = connection.readLine()) != null) {
+		System.out.println(line);
+	}
+
