@@ -2,15 +2,25 @@ package com.zacharyfox.rmonitor.entities;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.TreeMap;
 
-import com.zacharyfox.rmonitor.message.*;
+import com.zacharyfox.rmonitor.message.ClassInfo;
+import com.zacharyfox.rmonitor.message.CompInfo;
+import com.zacharyfox.rmonitor.message.Heartbeat;
+import com.zacharyfox.rmonitor.message.LapInfo;
+import com.zacharyfox.rmonitor.message.RMonitorMessage;
+import com.zacharyfox.rmonitor.message.RaceInfo;
+import com.zacharyfox.rmonitor.message.RunInfo;
+import com.zacharyfox.rmonitor.message.SettingInfo;
 import com.zacharyfox.rmonitor.utils.Duration;
+import com.zacharyfox.rmonitor.utils.ExponentialMovingAverage;
 
 public class Race
 {
-	private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
+	private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 
 	private int competitorsVersion = 0;
+	private final TreeMap<Integer, Long> completeLaps = new TreeMap<Integer, Long>();
 	private Duration elapsedTime = new Duration();
 	private String flagStatus = "";
 	private int id = 0;
@@ -30,6 +40,20 @@ public class Race
 	public void addPropertyChangeListener(String property, PropertyChangeListener l)
 	{
 		changeSupport.addPropertyChangeListener(property, l);
+	}
+
+	public int getEstimatedLaps()
+	{
+		long nextLapTime = ExponentialMovingAverage.predictNext(completeLaps);
+		int laps = Competitor.getByPosition(1).getLapsComplete();
+		int time = Competitor.getByPosition(1).getTotalTime().toInt();
+
+		do {
+			time += nextLapTime;
+			laps += 1;
+		} while (time < timeToGo.toInt());
+
+		return laps;
 	}
 
 	public Float getTrackLength()
@@ -85,24 +109,30 @@ public class Race
 			if (message.getClass() == RunInfo.class) {
 				this.messageUpdate((RunInfo) message);
 			}
-			
+
 			if (message.getClass() == SettingInfo.class) {
-				this.messageUpdate((SettingInfo) message); 
+				this.messageUpdate((SettingInfo) message);
 			}
 
-			if (message.getClass() == RaceInfo.class
-					|| message.getClass() == CompInfo.class
-					|| message.getClass() == LapInfo.class) {
+			if (message.getClass() == RaceInfo.class || message.getClass() == CompInfo.class
+				|| message.getClass() == LapInfo.class) {
 				Competitor.updateOrCreate(message);
 				setCompetitorsVersion();
 			}
-			
+
+			if (message.getClass() == RaceInfo.class) {
+				if (((RaceInfo) message).getPosition() == 1) {
+					completeLaps
+						.put(((RaceInfo) message).getLaps(), (long) ((RaceInfo) message).getTotalTime().toInt());
+				}
+			}
+
 			if (message.getClass() == ClassInfo.class) {
 				RaceClass.update((ClassInfo) message);
 			}
 		}
 	}
-	
+
 	private void messageUpdate(Heartbeat message)
 	{
 		setElapsedTime(message.getRaceTime());
@@ -124,7 +154,7 @@ public class Race
 		if (message.getDescription().equals("TRACKNAME")) {
 			setTrackName(message.getValue());
 		}
-		
+
 		if (message.getDescription().equals("TRACKLENGTH")) {
 			setTrackLength(Float.parseFloat(message.getValue()));
 		}

@@ -14,10 +14,10 @@ public class Competitor
 {
 	private String addData = "";
 	private Duration bestLap = new Duration();
-	private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
+	private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 	private int classId = 0;
 	private String firstName = "";
-	private HashMap<Integer, Object[]> laps = new HashMap<Integer, Object[]>();
+	private final HashMap<Integer, Object[]> laps = new HashMap<Integer, Object[]>();
 	private int lapsComplete = 0;
 	private Duration lastLap = new Duration();
 	private String lastName = "";
@@ -51,7 +51,7 @@ public class Competitor
 
 	public Object getAvgLap()
 	{
-		return new Duration((Float) (totalTime.toFloat() / lapsComplete));
+		return new Duration((totalTime.toFloat() / lapsComplete));
 	}
 
 	public Duration getBestLap()
@@ -107,13 +107,13 @@ public class Competitor
 	public int getPositionInClass()
 	{
 		int positionInClass = 1;
-		
+
 		for (Competitor competitor : instances.values()) {
 			if (competitor.classId == classId && competitor.position < position) {
 				positionInClass += 1;
 			}
 		}
-		
+
 		return positionInClass;
 	}
 
@@ -141,7 +141,7 @@ public class Competitor
 	{
 		changeSupport.removePropertyChangeListener(property, l);
 	}
-	
+
 	@Override
 	public String toString()
 	{
@@ -187,7 +187,7 @@ public class Competitor
 		this.laps.put(message.getLapNumber(), new Object[] {
 			message.getLapNumber(), message.getPosition(), message.getLapTime()
 		});
-		
+
 		if (message.getLapNumber() == lapsComplete) {
 			setLastLap(message.getLapTime());
 		}
@@ -310,16 +310,17 @@ public class Competitor
 	{
 		Duration fastestLap = new Duration();
 		Duration competitorBestLap;
-		
+
 		for (Competitor competitor : instances.values()) {
-			competitorBestLap = competitor.getBestLap(); 
-			if (competitorBestLap.toInt() == 0) continue; 
-			
+			competitorBestLap = competitor.getBestLap();
+			if (competitorBestLap.toInt() == 0)
+				continue;
+
 			if (fastestLap.isEmpty() || competitorBestLap.lt(fastestLap)) {
 				fastestLap = competitorBestLap;
 			}
 		}
-		
+
 		return fastestLap;
 	}
 
@@ -330,7 +331,7 @@ public class Competitor
 		}
 		return null;
 	}
-	
+
 	public static HashMap<String, Competitor> getInstances()
 	{
 		return instances;
