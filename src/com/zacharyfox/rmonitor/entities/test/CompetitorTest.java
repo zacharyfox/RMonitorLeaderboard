@@ -1,10 +1,11 @@
 package com.zacharyfox.rmonitor.entities.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.HashMap;
+import java.util.ArrayList;
 
 import org.junit.Test;
 
@@ -17,43 +18,29 @@ import com.zacharyfox.rmonitor.utils.Duration;
 public class CompetitorTest
 {
 
-	protected boolean numberFired = false;
-	protected boolean transNumberFired = false;
+	protected boolean bestLapFired = false;
+	protected boolean classIdFired = false;
 	protected boolean firstNameFired = false;
+	protected boolean lapsCompleteFired = false;
+	protected boolean lapsFired = false;
 	protected boolean lastNameFired = false;
 	protected boolean nationalityFired = false;
-	protected boolean classIdFired = false;
-	protected boolean lapsFired = false;
-	protected boolean bestLapFired = false;
+	protected boolean numberFired = false;
 	protected boolean positionFired = false;
-	protected boolean lapsCompleteFired = false;
 	protected boolean totalTimeFired = false;
-	
-	private Competitor getCompetitor()
-	{
-		Competitor.reset();
-		
-		String[] tokens = {
-			"$A", "1234BE", "12X", "52474", "John", "Johnson", "USA", "5"
-		};
-		
-		CompInfo message = new CompInfo(tokens);
-		Competitor.updateOrCreate(message);
-		
-		return Competitor.getInstance("1234BE");
-	}
-	
+	protected boolean transNumberFired = false;
+
 	@Test
 	public void testUpdateCompInfo()
 	{
 		final Competitor competitor = getCompetitor();
-		
+
 		String[] tokens = {
 			"$A", "1234BE", "123", "54321", "Jack", "Jackson", "MX", "6"
 		};
 
 		CompInfo message = new CompInfo(tokens);
-		
+
 		competitor.addPropertyChangeListener(new PropertyChangeListener() {
 
 			@Override
@@ -106,18 +93,60 @@ public class CompetitorTest
 		assertTrue(nationalityFired);
 		assertTrue(classIdFired);
 	}
-	
+
+	@Test
+	public void testUpdateLapInfo()
+	{
+		final Competitor competitor = getCompetitor();
+
+		String[] tokens = {
+			"$SP", "3", "1234BE", "2", "00:01:33.894", "76682"
+		};
+
+		LapInfo message = new LapInfo(tokens);
+
+		Competitor.updateOrCreate(message);
+
+		ArrayList<Competitor.Lap> laps = competitor.getLaps();
+
+		assertEquals(laps.get(2).lapNumber, 2);
+		assertEquals(laps.get(2).lapTime, new Duration("00:01:33.894"));
+
+		competitor.addPropertyChangeListener(new PropertyChangeListener() {
+
+			@Override
+			public void propertyChange(PropertyChangeEvent evt)
+			{
+				if ("bestLap".equals(evt.getPropertyName())) {
+					bestLapFired = true;
+					assertEquals(new Duration("00:01:31.123"), evt.getNewValue());
+					assertEquals(new Duration("00:01:31.123"), competitor.getBestLap());
+				}
+			}
+		});
+
+		String[] tokens_1 = {
+			"$SP", "3", "1234BE", "3", "00:01:31.123", "76682"
+		};
+
+		LapInfo message_1 = new LapInfo(tokens_1);
+
+		Competitor.updateOrCreate(message_1);
+
+		assertTrue(bestLapFired);
+	}
+
 	@Test
 	public void testUpdateRaceInfo()
 	{
 		final Competitor competitor = getCompetitor();
-		
+
 		String[] tokens = {
 			"$G", "3", "1234BE", "14", "01:12:47.872"
 		};
 
 		RaceInfo message = new RaceInfo(tokens);
-		
+
 		competitor.addPropertyChangeListener(new PropertyChangeListener() {
 
 			@Override
@@ -149,48 +178,19 @@ public class CompetitorTest
 		assertTrue(lapsCompleteFired);
 		assertTrue(totalTimeFired);
 	}
-	
-	@Test
-	public void testUpdateLapInfo()
+
+	private Competitor getCompetitor()
 	{
-		final Competitor competitor = getCompetitor();
-		
+		Competitor.reset();
+
 		String[] tokens = {
-			"$SP","3","1234BE","2","00:01:33.894","76682"
+			"$A", "1234BE", "12X", "52474", "John", "Johnson", "USA", "5"
 		};
 
-		LapInfo message = new LapInfo(tokens);
-		
+		CompInfo message = new CompInfo(tokens);
 		Competitor.updateOrCreate(message);
-		
-		HashMap<Integer, Object[]> laps = competitor.getLaps();
-		
-		assertEquals(laps.get(2)[0], 2);
-		assertEquals(laps.get(2)[1], 3);
-		assertEquals(laps.get(2)[2], new Duration("00:01:33.894"));
-		
-		competitor.addPropertyChangeListener(new PropertyChangeListener() {
 
-			@Override
-			public void propertyChange(PropertyChangeEvent evt)
-			{
-				if ("bestLap".equals(evt.getPropertyName())) {
-					bestLapFired = true;
-					assertEquals(new Duration("00:01:31.123"), evt.getNewValue());
-					assertEquals(new Duration("00:01:31.123"), competitor.getBestLap());
-				}
-			}
-		});
-		
-		String[] tokens_1 = {
-			"$SP","3","1234BE","3","00:01:31.123","76682"
-		};
-
-		LapInfo message_1 = new LapInfo(tokens_1);
-		
-		Competitor.updateOrCreate(message_1);
-		
-		assertTrue(bestLapFired);
+		return Competitor.getInstance("1234BE");
 	}
 
 }

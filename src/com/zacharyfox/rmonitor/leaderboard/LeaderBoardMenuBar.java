@@ -96,7 +96,7 @@ public class LeaderBoardMenuBar extends JMenuBar
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				EstimatorFrame newFrame = new EstimatorFrame();
+				EstimatorFrame newFrame = EstimatorFrame.getInstance(mainFrame);
 				newFrame.setVisible(true);
 			}
 		});

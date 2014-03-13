@@ -8,6 +8,8 @@ import com.zacharyfox.rmonitor.message.ClassInfo;
 import com.zacharyfox.rmonitor.message.CompInfo;
 import com.zacharyfox.rmonitor.message.Heartbeat;
 import com.zacharyfox.rmonitor.message.LapInfo;
+import com.zacharyfox.rmonitor.message.PassingInfo;
+import com.zacharyfox.rmonitor.message.QualInfo;
 import com.zacharyfox.rmonitor.message.RMonitorMessage;
 import com.zacharyfox.rmonitor.message.RaceInfo;
 import com.zacharyfox.rmonitor.message.RunInfo;
@@ -44,16 +46,24 @@ public class Race
 
 	public int getEstimatedLaps()
 	{
-		long nextLapTime = ExponentialMovingAverage.predictNext(completeLaps);
-		int laps = Competitor.getByPosition(1).getLapsComplete();
-		int time = Competitor.getByPosition(1).getTotalTime().toInt();
+		if (completeLaps.size() > 0) {
+			// long nextLapTime = ExponentialMovingAverage.predictNext(completeLaps);
+			long nextLapTime = ExponentialMovingAverage.getAverage(completeLaps);
+			// int nextLapTime = Competitor.getByPosition(1).getBestLap().toInt();
+			int laps = Competitor.getByPosition(1).getLapsComplete();
+			int time = Competitor.getByPosition(1).getTotalTime().toInt();
 
-		do {
-			time += nextLapTime;
-			laps += 1;
-		} while (time < timeToGo.toInt());
+			do {
+				time += nextLapTime;
+				laps += 1;
+			} while (time < scheduledTime.toInt());
 
-		return laps;
+			if (laps < lapsToGo + Competitor.getByPosition(1).getLapsComplete()) {
+				return laps;
+			}
+		}
+
+		return lapsToGo + Competitor.getByPosition(1).getLapsComplete();
 	}
 
 	public Float getTrackLength()
@@ -104,31 +114,32 @@ public class Race
 		if (message != null) {
 			if (message.getClass() == Heartbeat.class) {
 				this.messageUpdate((Heartbeat) message);
-			}
-
-			if (message.getClass() == RunInfo.class) {
+			} else if (message.getClass() == RunInfo.class) {
 				this.messageUpdate((RunInfo) message);
-			}
-
-			if (message.getClass() == SettingInfo.class) {
+			} else if (message.getClass() == SettingInfo.class) {
 				this.messageUpdate((SettingInfo) message);
-			}
-
-			if (message.getClass() == RaceInfo.class || message.getClass() == CompInfo.class
-				|| message.getClass() == LapInfo.class) {
+			} else if (message.getClass() == RaceInfo.class) {
 				Competitor.updateOrCreate(message);
 				setCompetitorsVersion();
-			}
-
-			if (message.getClass() == RaceInfo.class) {
 				if (((RaceInfo) message).getPosition() == 1) {
 					completeLaps
 						.put(((RaceInfo) message).getLaps(), (long) ((RaceInfo) message).getTotalTime().toInt());
 				}
-			}
-
-			if (message.getClass() == ClassInfo.class) {
+			} else if (message.getClass() == CompInfo.class) {
+				Competitor.updateOrCreate(message);
+				setCompetitorsVersion();
+			} else if (message.getClass() == LapInfo.class) {
+				Competitor.updateOrCreate(message);
+				setCompetitorsVersion();
+			} else if (message.getClass() == QualInfo.class) {
+				Competitor.updateOrCreate(message);
+				setCompetitorsVersion();
+			} else if (message.getClass() == ClassInfo.class) {
 				RaceClass.update((ClassInfo) message);
+			} else if (message.getClass() == PassingInfo.class) {
+				Competitor.updateOrCreate(message);
+			} else {
+				System.out.println(message);
 			}
 		}
 	}
