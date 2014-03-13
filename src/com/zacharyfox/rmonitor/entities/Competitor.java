@@ -2,22 +2,33 @@ package com.zacharyfox.rmonitor.entities;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.zacharyfox.rmonitor.message.CompInfo;
 import com.zacharyfox.rmonitor.message.LapInfo;
+import com.zacharyfox.rmonitor.message.PassingInfo;
+import com.zacharyfox.rmonitor.message.QualInfo;
 import com.zacharyfox.rmonitor.message.RMonitorMessage;
 import com.zacharyfox.rmonitor.message.RaceInfo;
 import com.zacharyfox.rmonitor.utils.Duration;
 
 public class Competitor
 {
+	public class Lap
+	{
+		public int lapNumber;
+		public Duration lapTime;
+		public int position;
+		public Duration totalTime;
+	}
+
 	private String addData = "";
 	private Duration bestLap = new Duration();
-	private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
+	private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 	private int classId = 0;
 	private String firstName = "";
-	private HashMap<Integer, Object[]> laps = new HashMap<Integer, Object[]>();
+	private final ArrayList<Competitor.Lap> laps = new ArrayList<Competitor.Lap>();
 	private int lapsComplete = 0;
 	private Duration lastLap = new Duration();
 	private String lastName = "";
@@ -51,7 +62,11 @@ public class Competitor
 
 	public Object getAvgLap()
 	{
-		return new Duration((Float) (totalTime.toFloat() / lapsComplete));
+		if (lapsComplete > 0) {
+			return new Duration((totalTime.toFloat() / lapsComplete));
+		} else {
+			return new Duration(0);
+		}
 	}
 
 	public Duration getBestLap()
@@ -69,7 +84,7 @@ public class Competitor
 		return firstName;
 	}
 
-	public HashMap<Integer, Object[]> getLaps()
+	public ArrayList<Competitor.Lap> getLaps()
 	{
 		return laps;
 	}
@@ -107,13 +122,13 @@ public class Competitor
 	public int getPositionInClass()
 	{
 		int positionInClass = 1;
-		
+
 		for (Competitor competitor : instances.values()) {
 			if (competitor.classId == classId && competitor.position < position) {
 				positionInClass += 1;
 			}
 		}
-		
+
 		return positionInClass;
 	}
 
@@ -141,7 +156,7 @@ public class Competitor
 	{
 		changeSupport.removePropertyChangeListener(property, l);
 	}
-	
+
 	@Override
 	public String toString()
 	{
@@ -160,11 +175,73 @@ public class Competitor
 
 		string += "Laps: \n";
 
-		for (Object[] lap : laps.values()) {
-			string += lap[0] + " " + lap[1] + " " + lap[2] + "\n";
+		for (Competitor.Lap lap : laps) {
+			string += lap.lapNumber + " " + lap.position + " " + lap.lapTime + " " + lap.totalTime + "\n";
 		}
 
 		return string;
+	}
+
+	private void addLap(LapInfo message)
+	{
+		Boolean found = false;
+
+		for (Competitor.Lap lap : laps) {
+			if (lap.lapNumber == message.getLapNumber()) {
+				found = true;
+				lap.lapTime = message.getLapTime();
+				lap.position = message.getPosition();
+			}
+		}
+
+		if (found == false) {
+			Competitor.Lap lap = new Competitor.Lap();
+			lap.lapNumber = message.getLapNumber();
+			lap.position = message.getPosition();
+			lap.lapTime = message.getLapTime();
+
+			laps.add(lap);
+		}
+	}
+
+	private void addLap(PassingInfo message)
+	{
+		Boolean found = false;
+
+		for (Competitor.Lap lap : laps) {
+			if (lap.totalTime.equals(message.getTotalTime())) {
+				found = true;
+				lap.lapTime = message.getLapTime();
+			}
+		}
+
+		if (found == false) {
+			Competitor.Lap lap = new Competitor.Lap();
+			lap.lapTime = message.getLapTime();
+			lap.totalTime = message.getTotalTime();
+			laps.add(lap);
+		}
+	}
+
+	private void addLap(RaceInfo message)
+	{
+		Boolean found = false;
+
+		for (Competitor.Lap lap : laps) {
+			if (lap.totalTime.equals(message.getTotalTime())) {
+				found = true;
+				lap.totalTime = message.getTotalTime();
+				lap.lapNumber = message.getLaps();
+				lap.position = message.getPosition();
+			}
+		}
+
+		if (found == false) {
+			Competitor.Lap lap = new Competitor.Lap();
+			lap.totalTime = message.getTotalTime();
+			lap.lapNumber = message.getLaps();
+			laps.add(lap);
+		}
 	}
 
 	private void messageUpdate(CompInfo message)
@@ -184,10 +261,8 @@ public class Competitor
 
 	private void messageUpdate(LapInfo message)
 	{
-		this.laps.put(message.getLapNumber(), new Object[] {
-			message.getLapNumber(), message.getPosition(), message.getLapTime()
-		});
-		
+		this.addLap(message);
+
 		if (message.getLapNumber() == lapsComplete) {
 			setLastLap(message.getLapTime());
 		}
@@ -195,8 +270,23 @@ public class Competitor
 		setBestLap(message.getLapTime());
 	}
 
+	private void messageUpdate(PassingInfo message)
+	{
+		this.addLap(message);
+
+		this.setLastLap(message.getLapTime());
+	}
+
+	private void messageUpdate(QualInfo message)
+	{
+		this.setRegNumber(message.getRegNumber());
+		this.setBestLap(message.getBestLapTime());
+	}
+
 	private void messageUpdate(RaceInfo message)
 	{
+		this.addLap(message);
+
 		this.setRegNumber(message.getRegNumber());
 		this.setPosition(message.getPosition());
 		this.setLapsComplete(message.getLaps());
@@ -310,16 +400,17 @@ public class Competitor
 	{
 		Duration fastestLap = new Duration();
 		Duration competitorBestLap;
-		
+
 		for (Competitor competitor : instances.values()) {
-			competitorBestLap = competitor.getBestLap(); 
-			if (competitorBestLap.toInt() == 0) continue; 
-			
+			competitorBestLap = competitor.getBestLap();
+			if (competitorBestLap.toInt() == 0)
+				continue;
+
 			if (fastestLap.isEmpty() || competitorBestLap.lt(fastestLap)) {
 				fastestLap = competitorBestLap;
 			}
 		}
-		
+
 		return fastestLap;
 	}
 
@@ -330,7 +421,7 @@ public class Competitor
 		}
 		return null;
 	}
-	
+
 	public static HashMap<String, Competitor> getInstances()
 	{
 		return instances;
@@ -349,14 +440,14 @@ public class Competitor
 
 		if (message.getClass() == RaceInfo.class) {
 			instance.messageUpdate((RaceInfo) message);
-		}
-
-		if (message.getClass() == CompInfo.class) {
+		} else if (message.getClass() == CompInfo.class) {
 			instance.messageUpdate((CompInfo) message);
-		}
-
-		if (message.getClass() == LapInfo.class) {
+		} else if (message.getClass() == LapInfo.class) {
 			instance.messageUpdate((LapInfo) message);
+		} else if (message.getClass() == QualInfo.class) {
+			instance.messageUpdate((QualInfo) message);
+		} else if (message.getClass() == PassingInfo.class) {
+			instance.messageUpdate((PassingInfo) message);
 		}
 
 		instances.put(instance.getRegNumber(), instance);

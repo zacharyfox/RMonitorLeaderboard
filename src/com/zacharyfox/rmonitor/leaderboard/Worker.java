@@ -11,12 +11,14 @@ import com.zacharyfox.rmonitor.entities.Race;
 import com.zacharyfox.rmonitor.leaderboard.frames.ConnectFrame;
 import com.zacharyfox.rmonitor.message.Factory;
 import com.zacharyfox.rmonitor.utils.Connection;
+import com.zacharyfox.rmonitor.utils.Estimator;
 import com.zacharyfox.rmonitor.utils.Recorder;
 
 public class Worker extends SwingWorker<Integer, String>
 {
 	private final JButton connectButton;
 	private Connection connection;
+	private Estimator estimator;
 	private final JTextField ip;
 	private final JTextField port;
 	private final Race race;
@@ -30,9 +32,19 @@ public class Worker extends SwingWorker<Integer, String>
 		this.race = race;
 	}
 
+	public void removeEstimator()
+	{
+		this.estimator = null;
+	}
+
 	public void removeRecorder()
 	{
 		this.recorder = null;
+	}
+
+	public void setEstimator(Estimator estimator)
+	{
+		this.estimator = estimator;
 	}
 
 	public void setRecorder(Recorder recorder)
@@ -100,6 +112,9 @@ public class Worker extends SwingWorker<Integer, String>
 				race.update(Factory.getMessage(message));
 				if (recorder != null) {
 					recorder.push(message);
+				}
+				if (estimator != null) {
+					estimator.update(race);
 				}
 			}
 		}

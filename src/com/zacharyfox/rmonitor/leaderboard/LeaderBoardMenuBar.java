@@ -11,6 +11,7 @@ import javax.swing.UIManager;
 
 import com.zacharyfox.rmonitor.leaderboard.frames.AboutFrame;
 import com.zacharyfox.rmonitor.leaderboard.frames.ConnectFrame;
+import com.zacharyfox.rmonitor.leaderboard.frames.EstimatorFrame;
 import com.zacharyfox.rmonitor.leaderboard.frames.MainFrame;
 import com.zacharyfox.rmonitor.leaderboard.frames.PlayerFrame;
 import com.zacharyfox.rmonitor.leaderboard.frames.RecorderFrame;
@@ -19,6 +20,7 @@ public class LeaderBoardMenuBar extends JMenuBar
 {
 	private final JMenuItem aboutMenuItem;
 	private final JMenuItem connectMenuItem;
+	private final JMenuItem estimatorMenuItem;
 	private final JMenu fileMenu;
 	private final JMenuItem fullScreenMenuItem;
 	private final JMenu helpMenu;
@@ -88,6 +90,18 @@ public class LeaderBoardMenuBar extends JMenuBar
 		});
 
 		toolsMenu.add(playerMenuItem);
+
+		estimatorMenuItem = new JMenuItem("Estimator");
+		estimatorMenuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				EstimatorFrame newFrame = EstimatorFrame.getInstance(mainFrame);
+				newFrame.setVisible(true);
+			}
+		});
+
+		toolsMenu.add(estimatorMenuItem);
 
 		helpMenu = new JMenu("Help");
 		helpMenu.setBorder(UIManager.getBorder("MenuItem.border"));

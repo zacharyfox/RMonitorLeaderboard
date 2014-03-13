@@ -28,6 +28,7 @@ public abstract class Factory
 	@SuppressWarnings("unchecked")
 	public static <M extends RMonitorMessage> M getMessage(String line)
 	{
+		// xSystem.out.println(line);
 		// TODO: better tokenizing here - doesn't handle values with commas
 		String[] tokens = line.split(",");
 

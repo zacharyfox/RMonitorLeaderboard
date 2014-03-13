@@ -4,9 +4,9 @@ import com.zacharyfox.rmonitor.utils.Duration;
 
 public class PassingInfo extends RMonitorMessage
 {
-	private Duration lapTime;
-	private String regNumber;
-	private Duration totalTime;
+	private final Duration lapTime;
+	private final String regNumber;
+	private final Duration totalTime;
 
 	public PassingInfo(String[] tokens)
 	{

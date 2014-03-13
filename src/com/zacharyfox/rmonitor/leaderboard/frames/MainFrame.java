@@ -39,11 +39,13 @@ import com.zacharyfox.rmonitor.leaderboard.LeaderBoardTable;
 import com.zacharyfox.rmonitor.leaderboard.LeaderBoardTableModel;
 import com.zacharyfox.rmonitor.leaderboard.Worker;
 import com.zacharyfox.rmonitor.utils.Duration;
+import com.zacharyfox.rmonitor.utils.Estimator;
 import com.zacharyfox.rmonitor.utils.Recorder;
 
 public class MainFrame extends JFrame implements ActionListener
 {
 	private final JLabel elapsedTime;
+	private Estimator estimator;
 	private final JPanel flagColor;
 	private final JPanel flagColor_1;
 	private final JPanel flagColor_2;
@@ -237,10 +239,24 @@ public class MainFrame extends JFrame implements ActionListener
 		}
 	}
 
+	public void removeEstimator()
+	{
+		this.estimator = null;
+		worker.removeEstimator();
+	}
+
 	public void removeRecorder()
 	{
 		this.recorder = null;
 		worker.removeRecorder();
+	}
+
+	public void setEstimator(Estimator estimator)
+	{
+		if (this.estimator == null) {
+			this.estimator = estimator;
+			worker.setEstimator(estimator);
+		}
 	}
 
 	public void setRecorder(Recorder recorder)
