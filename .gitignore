@@ -1,6 +1,7 @@
 .project
 .settings
 .classpath
+.DS_Store
 bin/*
 miglayout-src.zip
 miglayout15-swing.jar
