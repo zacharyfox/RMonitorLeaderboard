@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Duration
 {
-	private long milliseconds;
+	private final long milliseconds;
 
 	public Duration()
 	{
@@ -18,7 +18,7 @@ public class Duration
 
 	public Duration(int duration)
 	{
-		milliseconds = (long) (duration * 1000);
+		milliseconds = (duration * 1000);
 	}
 
 	public Duration(String duration)
@@ -27,7 +27,7 @@ public class Duration
 		int hours = Integer.parseInt(tokens[0]);
 		int minutes = Integer.parseInt(tokens[1]);
 		float seconds = Float.parseFloat(tokens[2]);
-		float durationFloat = (float) (3600 * hours + 60 * minutes + seconds);
+		float durationFloat = ((3600 * hours) + (60 * minutes) + seconds);
 		milliseconds = (int) (durationFloat * 1000);
 	}
 
@@ -36,7 +36,7 @@ public class Duration
 	{
 		return (milliseconds == ((Duration) other).milliseconds);
 	}
-	
+
 	public boolean isEmpty()
 	{
 		return (milliseconds == 0);
@@ -56,36 +56,12 @@ public class Duration
 	{
 		return (int) milliseconds / 1000;
 	}
-	
-	public String toString()
-	{
-		String string = "";
-		
-		long hours = TimeUnit.MILLISECONDS.toHours(milliseconds);
-		long minutes = TimeUnit.MILLISECONDS.toMinutes(milliseconds)
-			- TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(milliseconds));
-		long seconds = TimeUnit.MILLISECONDS.toSeconds(milliseconds)
-			- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliseconds));
-		long millis = TimeUnit.MILLISECONDS.toMillis(milliseconds)
-			- TimeUnit.SECONDS.toMillis(TimeUnit.MILLISECONDS.toSeconds(milliseconds));
-		
-		if (hours != 0) string += String.format("%d:", hours);
-		
-		if (!string.equals("")) {
-			string += String.format("%02d:%02d", minutes, seconds);
-		} else {
-			string = String.format("%d:%02d", minutes, seconds);
-		}
-		
-		if (millis != 0) string += String.format(".%03d", millis);
-		
-		return string;
-	}
-	/*
+
 	@Override
 	public String toString()
 	{
-		if (milliseconds == 0) return "";
+		String string = "";
+
 		long hours = TimeUnit.MILLISECONDS.toHours(milliseconds);
 		long minutes = TimeUnit.MILLISECONDS.toMinutes(milliseconds)
 			- TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(milliseconds));
@@ -94,7 +70,35 @@ public class Duration
 		long millis = TimeUnit.MILLISECONDS.toMillis(milliseconds)
 			- TimeUnit.SECONDS.toMillis(TimeUnit.MILLISECONDS.toSeconds(milliseconds));
 
-		return String.format("%02d:%02d:%02d.%03d", hours, minutes, seconds, millis);
+		if (hours != 0)
+			string += String.format("%d:", hours);
+
+		if (!string.equals("")) {
+			string += String.format("%02d:%02d", minutes, seconds);
+		} else {
+			string = String.format("%d:%02d", minutes, seconds);
+		}
+
+		if (millis != 0)
+			string += String.format(".%03d", millis);
+
+		return string;
 	}
-	*/
+	// @Override
+	// public String toString()
+	// {
+	// if (milliseconds == 0) {
+	// return "00:00:00.000";
+	// }
+	// long hours = TimeUnit.MILLISECONDS.toHours(milliseconds);
+	// long minutes = TimeUnit.MILLISECONDS.toMinutes(milliseconds)
+	// - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(milliseconds));
+	// long seconds = TimeUnit.MILLISECONDS.toSeconds(milliseconds)
+	// - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(milliseconds));
+	// long millis = TimeUnit.MILLISECONDS.toMillis(milliseconds)
+	// - TimeUnit.SECONDS.toMillis(TimeUnit.MILLISECONDS.toSeconds(milliseconds));
+	//
+	// return String.format("%02d:%02d:%02d.%03d", hours, minutes, seconds, millis);
+	// }
+
 }

@@ -60,13 +60,24 @@ public class Competitor
 		return addData;
 	}
 
-	public Object getAvgLap()
+	public Duration getAvgLap()
 	{
-		if (lapsComplete > 0) {
-			return new Duration((totalTime.toFloat() / lapsComplete));
-		} else {
-			return new Duration(0);
+		float totalTime = 0;
+		int count = 0;
+
+		if (laps.size() > 0) {
+			for (Competitor.Lap lap : laps) {
+				if (lap.lapTime != null && lap.lapNumber > 0) {
+					totalTime = totalTime + lap.lapTime.toFloat();
+					count++;
+				}
+			}
+
+			if (count > 0) {
+				return new Duration(totalTime / count);
+			}
 		}
+		return new Duration(0);
 	}
 
 	public Duration getBestLap()
@@ -186,21 +197,20 @@ public class Competitor
 	{
 		Boolean found = false;
 
-		for (Competitor.Lap lap : laps) {
+		for (Competitor.Lap lap : this.laps) {
 			if (lap.lapNumber == message.getLapNumber()) {
 				found = true;
 				lap.lapTime = message.getLapTime();
 				lap.position = message.getPosition();
 			}
 		}
-
 		if (found == false) {
 			Competitor.Lap lap = new Competitor.Lap();
 			lap.lapNumber = message.getLapNumber();
 			lap.position = message.getPosition();
 			lap.lapTime = message.getLapTime();
 
-			laps.add(lap);
+			this.laps.add(lap);
 		}
 	}
 
@@ -208,7 +218,7 @@ public class Competitor
 	{
 		Boolean found = false;
 
-		for (Competitor.Lap lap : laps) {
+		for (Competitor.Lap lap : this.laps) {
 			if (lap.totalTime.equals(message.getTotalTime())) {
 				found = true;
 				lap.lapTime = message.getLapTime();
@@ -219,15 +229,14 @@ public class Competitor
 			Competitor.Lap lap = new Competitor.Lap();
 			lap.lapTime = message.getLapTime();
 			lap.totalTime = message.getTotalTime();
-			laps.add(lap);
+			this.laps.add(lap);
 		}
 	}
 
 	private void addLap(RaceInfo message)
 	{
 		Boolean found = false;
-
-		for (Competitor.Lap lap : laps) {
+		for (Competitor.Lap lap : this.laps) {
 			if (lap.totalTime.equals(message.getTotalTime())) {
 				found = true;
 				lap.totalTime = message.getTotalTime();
@@ -235,12 +244,11 @@ public class Competitor
 				lap.position = message.getPosition();
 			}
 		}
-
 		if (found == false) {
 			Competitor.Lap lap = new Competitor.Lap();
 			lap.totalTime = message.getTotalTime();
 			lap.lapNumber = message.getLaps();
-			laps.add(lap);
+			this.laps.add(lap);
 		}
 	}
 

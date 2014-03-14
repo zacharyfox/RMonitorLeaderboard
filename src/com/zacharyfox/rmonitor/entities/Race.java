@@ -2,7 +2,6 @@ package com.zacharyfox.rmonitor.entities;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.TreeMap;
 
 import com.zacharyfox.rmonitor.message.ClassInfo;
 import com.zacharyfox.rmonitor.message.CompInfo;
@@ -15,17 +14,16 @@ import com.zacharyfox.rmonitor.message.RaceInfo;
 import com.zacharyfox.rmonitor.message.RunInfo;
 import com.zacharyfox.rmonitor.message.SettingInfo;
 import com.zacharyfox.rmonitor.utils.Duration;
-import com.zacharyfox.rmonitor.utils.ExponentialMovingAverage;
 
 public class Race
 {
 	private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 
 	private int competitorsVersion = 0;
-	private final TreeMap<Integer, Long> completeLaps = new TreeMap<Integer, Long>();
 	private Duration elapsedTime = new Duration();
 	private String flagStatus = "";
 	private int id = 0;
+	private int lapsComplete = 0;
 	private int lapsToGo = 0;
 	private String name = "";
 	private Duration scheduledTime = new Duration();
@@ -44,26 +42,24 @@ public class Race
 		changeSupport.addPropertyChangeListener(property, l);
 	}
 
-	public int getEstimatedLaps()
+	public int getLapsComplete()
 	{
-		if (completeLaps.size() > 0) {
-			// long nextLapTime = ExponentialMovingAverage.predictNext(completeLaps);
-			long nextLapTime = ExponentialMovingAverage.getAverage(completeLaps);
-			// int nextLapTime = Competitor.getByPosition(1).getBestLap().toInt();
-			int laps = Competitor.getByPosition(1).getLapsComplete();
-			int time = Competitor.getByPosition(1).getTotalTime().toInt();
+		return lapsComplete;
+	}
 
-			do {
-				time += nextLapTime;
-				laps += 1;
-			} while (time < scheduledTime.toInt());
+	public int getLapsToGo()
+	{
+		return lapsToGo;
+	}
 
-			if (laps < lapsToGo + Competitor.getByPosition(1).getLapsComplete()) {
-				return laps;
-			}
-		}
+	public int getScheduledLaps()
+	{
+		return lapsComplete + lapsToGo;
+	}
 
-		return lapsToGo + Competitor.getByPosition(1).getLapsComplete();
+	public Duration getScheduledTime()
+	{
+		return scheduledTime;
 	}
 
 	public Float getTrackLength()
@@ -119,12 +115,9 @@ public class Race
 			} else if (message.getClass() == SettingInfo.class) {
 				this.messageUpdate((SettingInfo) message);
 			} else if (message.getClass() == RaceInfo.class) {
+				this.messageUpdate((RaceInfo) message);
 				Competitor.updateOrCreate(message);
 				setCompetitorsVersion();
-				if (((RaceInfo) message).getPosition() == 1) {
-					completeLaps
-						.put(((RaceInfo) message).getLaps(), (long) ((RaceInfo) message).getTotalTime().toInt());
-				}
 			} else if (message.getClass() == CompInfo.class) {
 				Competitor.updateOrCreate(message);
 				setCompetitorsVersion();
@@ -154,8 +147,32 @@ public class Race
 		setFlagStatus(message.getFlagStatus());
 	}
 
+	private void messageUpdate(RaceInfo message)
+	{
+		if (message.getPosition() == 1) {
+			setLapsComplete(message.getLaps());
+		}
+	}
+
 	private void messageUpdate(RunInfo message)
 	{
+		if (id != message.getUniqueId() && name != message.getRaceName()) {
+			competitorsVersion = 0;
+			elapsedTime = new Duration();
+			flagStatus = "";
+			id = 0;
+			lapsComplete = 0;
+			lapsToGo = 0;
+			name = "";
+			scheduledTime = new Duration();
+			timeOfDay = new Duration();
+			timeToGo = new Duration();
+			trackLength = (float) 0.0;
+			trackName = "";
+
+			Competitor.reset();
+		}
+
 		setName(message.getRaceName());
 		setId(message.getUniqueId());
 	}
@@ -196,6 +213,13 @@ public class Race
 		int oldId = this.id;
 		this.id = id;
 		changeSupport.firePropertyChange("id", oldId, this.id);
+	}
+
+	private void setLapsComplete(int lapsComplete)
+	{
+		int oldLapsComplete = this.lapsComplete;
+		this.lapsComplete = lapsComplete;
+		changeSupport.firePropertyChange("lapsComplete", oldLapsComplete, this.lapsComplete);
 	}
 
 	private void setLapsToGo(int lapsToGo)
