@@ -77,7 +77,7 @@ public class Competitor
 				return new Duration(totalTime / count);
 			}
 		}
-		return new Duration(0);
+		return new Duration();
 	}
 
 	public Duration getBestLap()
@@ -204,6 +204,7 @@ public class Competitor
 				lap.position = message.getPosition();
 			}
 		}
+
 		if (found == false) {
 			Competitor.Lap lap = new Competitor.Lap();
 			lap.lapNumber = message.getLapNumber();
@@ -244,10 +245,12 @@ public class Competitor
 				lap.position = message.getPosition();
 			}
 		}
+
 		if (found == false) {
 			Competitor.Lap lap = new Competitor.Lap();
 			lap.totalTime = message.getTotalTime();
 			lap.lapNumber = message.getLaps();
+			lap.position = message.getPosition();
 			this.laps.add(lap);
 		}
 	}
@@ -261,10 +264,13 @@ public class Competitor
 		this.setLastName(message.getLastName());
 		this.setClassId(message.getClassId());
 
-		if (!"".equals(message.getNationality()))
+		if (!"".equals(message.getNationality())) {
 			this.setNationality(message.getNationality());
-		if (!"".equals(message.getAddInfo()))
+		}
+
+		if (!"".equals(message.getAddInfo())) {
 			this.setAddData(message.getAddInfo());
+		}
 	}
 
 	private void messageUpdate(LapInfo message)
@@ -283,6 +289,8 @@ public class Competitor
 		this.addLap(message);
 
 		this.setLastLap(message.getLapTime());
+		this.setBestLap(message.getLapTime());
+		this.setTotalTime(message.getTotalTime());
 	}
 
 	private void messageUpdate(QualInfo message)

@@ -12,6 +12,8 @@ import org.junit.Test;
 import com.zacharyfox.rmonitor.entities.Competitor;
 import com.zacharyfox.rmonitor.message.CompInfo;
 import com.zacharyfox.rmonitor.message.LapInfo;
+import com.zacharyfox.rmonitor.message.PassingInfo;
+import com.zacharyfox.rmonitor.message.QualInfo;
 import com.zacharyfox.rmonitor.message.RaceInfo;
 import com.zacharyfox.rmonitor.utils.Duration;
 
@@ -23,12 +25,70 @@ public class CompetitorTest
 	protected boolean firstNameFired = false;
 	protected boolean lapsCompleteFired = false;
 	protected boolean lapsFired = false;
+	protected boolean lastLapFired = false;
 	protected boolean lastNameFired = false;
 	protected boolean nationalityFired = false;
 	protected boolean numberFired = false;
 	protected boolean positionFired = false;
 	protected boolean totalTimeFired = false;
 	protected boolean transNumberFired = false;
+
+	@Test
+	public void testAddLap()
+	{
+		final Competitor competitor = getCompetitor();
+
+		this.playLapMessages();
+
+		ArrayList<Competitor.Lap> laps = competitor.getLaps();
+
+		assertEquals(1, laps.get(0).lapNumber);
+		assertEquals(3, laps.get(0).position);
+		assertEquals(new Duration("00:01:47.872"), laps.get(0).lapTime);
+		assertEquals(new Duration("00:01:47.872"), laps.get(0).totalTime);
+
+		assertEquals(2, laps.get(1).lapNumber);
+		assertEquals(2, laps.get(1).position);
+		assertEquals(new Duration("00:01:46.749"), laps.get(1).lapTime);
+		assertEquals(new Duration("00:03:34.621"), laps.get(1).totalTime);
+	}
+
+	@Test
+	public void testAvgLap()
+	{
+		final Competitor competitor = getCompetitor();
+
+		assertEquals(new Duration(), competitor.getAvgLap());
+
+		this.playLapMessages();
+
+		assertEquals(new Duration("00:01:47.310"), competitor.getAvgLap());
+	}
+
+	@Test
+	public void testGetByPosition()
+	{
+		final Competitor competitor = getCompetitor();
+		this.playLapMessages();
+
+		assertEquals(competitor, Competitor.getByPosition(2));
+	}
+
+	@Test
+	public void testGetFastestLap()
+	{
+		this.playLapMessages();
+		assertEquals(new Duration("00:01:46.749"), Competitor.getFastestLap());
+	}
+
+	@Test
+	public void testGetPositionInClass()
+	{
+		final Competitor competitor = getCompetitor();
+
+		this.playLapMessages();
+		assertEquals(1, competitor.getPositionInClass());
+	}
 
 	@Test
 	public void testUpdateCompInfo()
@@ -109,8 +169,11 @@ public class CompetitorTest
 
 		ArrayList<Competitor.Lap> laps = competitor.getLaps();
 
-		assertEquals(laps.get(2).lapNumber, 2);
-		assertEquals(laps.get(2).lapTime, new Duration("00:01:33.894"));
+		for (Competitor.Lap lap : laps) {
+			if (lap.lapNumber == 2) {
+				assertEquals(lap.lapTime, new Duration("00:01:33.894"));
+			}
+		}
 
 		competitor.addPropertyChangeListener(new PropertyChangeListener() {
 
@@ -132,6 +195,71 @@ public class CompetitorTest
 		LapInfo message_1 = new LapInfo(tokens_1);
 
 		Competitor.updateOrCreate(message_1);
+
+		assertTrue(bestLapFired);
+	}
+
+	@Test
+	public void testUpdatePassingInfo()
+	{
+		final Competitor competitor = getCompetitor();
+
+		String[] tokens = {
+			"$J", "1234BE", "01:12:47.872", "01:12:47.872"
+		};
+
+		PassingInfo message = new PassingInfo(tokens);
+
+		competitor.addPropertyChangeListener(new PropertyChangeListener() {
+
+			@Override
+			public void propertyChange(PropertyChangeEvent evt)
+			{
+				if ("lastLap".equals(evt.getPropertyName())) {
+					lastLapFired = true;
+					assertEquals(new Duration("01:12:47.872"), evt.getNewValue());
+					assertEquals(new Duration("01:12:47.872"), competitor.getLastLap());
+				}
+
+				if ("totalTime".equals(evt.getPropertyName())) {
+					totalTimeFired = true;
+					assertEquals(new Duration("01:12:47.872"), evt.getNewValue());
+					assertEquals(new Duration("01:12:47.872"), competitor.getTotalTime());
+				}
+			}
+		});
+
+		Competitor.updateOrCreate(message);
+
+		assertTrue(lastLapFired);
+		assertTrue(totalTimeFired);
+	}
+
+	@Test
+	public void testUpdateQualInfo()
+	{
+		final Competitor competitor = getCompetitor();
+
+		String[] tokens = {
+			"$H", "1", "1234BE", "1", "01:12:47.872"
+		};
+
+		QualInfo message = new QualInfo(tokens);
+
+		competitor.addPropertyChangeListener(new PropertyChangeListener() {
+
+			@Override
+			public void propertyChange(PropertyChangeEvent evt)
+			{
+				if ("bestLap".equals(evt.getPropertyName())) {
+					bestLapFired = true;
+					assertEquals(new Duration("01:12:47.872"), evt.getNewValue());
+					assertEquals(new Duration("01:12:47.872"), competitor.getBestLap());
+				}
+			}
+		});
+
+		Competitor.updateOrCreate(message);
 
 		assertTrue(bestLapFired);
 	}
@@ -191,6 +319,38 @@ public class CompetitorTest
 		Competitor.updateOrCreate(message);
 
 		return Competitor.getInstance("1234BE");
+	}
+
+	private void playLapMessages()
+	{
+		String[] tokens = {
+			"$G", "3", "1234BE", "1", "00:01:47.872"
+		};
+
+		RaceInfo message = new RaceInfo(tokens);
+
+		String[] tokens2 = {
+			"$J", "1234BE", "00:01:47.872", "00:01:47.872"
+		};
+
+		PassingInfo message2 = new PassingInfo(tokens2);
+
+		String[] tokens3 = {
+			"$J", "1234BE", "00:01:46.749", "00:03:34.621"
+		};
+
+		PassingInfo message3 = new PassingInfo(tokens3);
+
+		String[] tokens4 = {
+			"$G", "2", "1234BE", "2", "00:03:34.621"
+		};
+
+		RaceInfo message4 = new RaceInfo(tokens4);
+
+		Competitor.updateOrCreate(message);
+		Competitor.updateOrCreate(message2);
+		Competitor.updateOrCreate(message3);
+		Competitor.updateOrCreate(message4);
 	}
 
 }

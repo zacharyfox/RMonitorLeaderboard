@@ -70,17 +70,19 @@ public class Duration
 		long millis = TimeUnit.MILLISECONDS.toMillis(milliseconds)
 			- TimeUnit.SECONDS.toMillis(TimeUnit.MILLISECONDS.toSeconds(milliseconds));
 
-		if (hours != 0)
+		if (hours != 0) {
 			string += String.format("%d:", hours);
-
-		if (!string.equals("")) {
-			string += String.format("%02d:%02d", minutes, seconds);
-		} else {
-			string = String.format("%d:%02d", minutes, seconds);
 		}
 
-		if (millis != 0)
+		if (string.equals("")) {
+			string = String.format("%d:%02d", minutes, seconds);
+		} else {
+			string += String.format("%02d:%02d", minutes, seconds);
+		}
+
+		if (millis != 0) {
 			string += String.format(".%03d", millis);
+		}
 
 		return string;
 	}
