@@ -307,6 +307,11 @@ public class MainFrame extends JFrame implements ActionListener
 			timeToGo.setText(((Duration) evt.getNewValue()).toString());
 		}
 
+		if (evt.getPropertyName().equals("lapsToGo")) {
+			timeToGo.setText(String.valueOf(((int) evt.getNewValue())));
+		}
+
+		
 		if (evt.getPropertyName().equals("competitorsVersion")) {
 			((LeaderBoardTableModel) leaderBoardTable.getModel()).updateData();
 		}

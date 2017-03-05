@@ -18,6 +18,8 @@ public class PlayerFrame extends JFrame implements ActionListener
 	private JFileChooser chooser;
 	private final MainFrame mainFrame;
 	private final JTextField playerFile;
+	private final JTextField playerSpeedup;
+	
 	private final JButton selectFileButton;
 	private final JButton startStop;
 	private static PlayerFrame instance;
@@ -28,7 +30,7 @@ public class PlayerFrame extends JFrame implements ActionListener
 	{
 		this.mainFrame = mainFrame;
 
-		getContentPane().setLayout(new MigLayout("", "[grow][][]", "[][]"));
+		getContentPane().setLayout(new MigLayout("", "[grow][][][]", "[][]"));
 		setBounds(100, 100, 400, 150);
 
 		playerFile = new JTextField();
@@ -39,10 +41,15 @@ public class PlayerFrame extends JFrame implements ActionListener
 		selectFileButton.addActionListener(this);
 		getContentPane().add(selectFileButton, "cell 1 0");
 
+		playerSpeedup = new JTextField();
+		getContentPane().add(playerSpeedup, "cell 2 0");
+		playerSpeedup.setText("2");
+		playerSpeedup.setColumns(3);
+
 		startStop = new JButton("Start");
 		startStop.setEnabled(false);
 		startStop.addActionListener(this);
-		getContentPane().add(startStop, "cell 2 0");
+		getContentPane().add(startStop, "cell 3 0");
 	}
 
 	@Override
@@ -61,6 +68,7 @@ public class PlayerFrame extends JFrame implements ActionListener
 			playerFile.setEnabled(false);
 			selectFileButton.setEnabled(false);
 			player = new Player(playerFile.getText());
+			player.setPlayerSpeedup(Integer.parseInt(playerSpeedup.getText()));
 			player.execute();
 
 		} else if (evt.getActionCommand().equals("Stop")) {

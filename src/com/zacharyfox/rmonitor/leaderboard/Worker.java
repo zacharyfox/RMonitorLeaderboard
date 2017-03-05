@@ -107,6 +107,13 @@ public class Worker extends SwingWorker<Integer, String>
 				port.setEnabled(true);
 				connectButton.setEnabled(true);
 			}
+			
+			if ("connect error".equals(message)) {
+				connectButton.setText("Connect");
+				ip.setEnabled(true);
+				port.setEnabled(true);
+				connectButton.setEnabled(true);
+			}
 
 			if (message.substring(0, 1).equals("$")) {
 				race.update(Factory.getMessage(message));
