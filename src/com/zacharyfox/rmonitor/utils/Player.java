@@ -14,6 +14,7 @@ public class Player extends SwingWorker<Integer, String>
 	private Socket clientSocket;
 	private FileReader fileReader;
 	private ServerSocket serverSocket;
+	private int speedup = 2;
 
 	public Player(String fileName)
 	{
@@ -28,6 +29,7 @@ public class Player extends SwingWorker<Integer, String>
 
 	}
 
+	
 	public void close()
 	{
 		try {
@@ -56,7 +58,7 @@ public class Player extends SwingWorker<Integer, String>
 				long tS = Integer.parseInt(tokens[0]);
 				System.out.println(tokens[1]);
 				out.println(tokens[1]);
-				Thread.sleep((int) ((tS - lastTs) / 10));
+				Thread.sleep((int) ((tS - lastTs) / speedup));
 				lastTs = tS;
 			}
 		} catch (Exception e) {
@@ -64,5 +66,9 @@ public class Player extends SwingWorker<Integer, String>
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public void setPlayerSpeedup(int newSpeedup){
+		speedup = newSpeedup;
 	}
 }
