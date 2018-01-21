@@ -33,9 +33,10 @@ public class Player extends SwingWorker<Integer, String>
 	public void close()
 	{
 		try {
-			clientSocket.close();
-			bufferedReader.close();
-			fileReader.close();
+			if (clientSocket != null) clientSocket.close();
+			if (serverSocket != null) serverSocket.close();
+			if (bufferedReader != null) bufferedReader.close();
+			if (fileReader != null) fileReader.close();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

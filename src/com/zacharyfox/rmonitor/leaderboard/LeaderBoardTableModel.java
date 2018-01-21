@@ -26,7 +26,8 @@ public class LeaderBoardTableModel extends AbstractTableModel
 	@Override
 	public Class<?> getColumnClass(int c)
 	{
-		return getValueAt(0, c).getClass();
+		if (data.size() > 0 ) return getValueAt(0, c).getClass();
+		return Object.class;
 	}
 
 	@Override
@@ -50,7 +51,8 @@ public class LeaderBoardTableModel extends AbstractTableModel
 	@Override
 	public Object getValueAt(int row, int col)
 	{
-		return data.get(row)[col];
+		if (data.size()> row) return data.get(row)[col];
+		return null;
 	}
 
 	/*
@@ -72,7 +74,7 @@ public class LeaderBoardTableModel extends AbstractTableModel
 		}
 
 		data = rows;
-		fireTableDataChanged();
+		if (data.size() > 0) fireTableDataChanged();
 	}
 
 	private Object[] getRow(Competitor competitor)

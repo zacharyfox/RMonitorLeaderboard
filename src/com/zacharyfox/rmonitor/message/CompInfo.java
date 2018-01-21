@@ -9,14 +9,14 @@ public class CompInfo extends RMonitorMessage
 	private String nationality;
 	private String number;
 	private String regNumber;
-	private int transNumber;
+	private String transNumber;
 
 	public CompInfo(String[] tokens)
 	{
 		if (tokens[0].equals("$A")) {
 			regNumber = tokens[1];
 			number = tokens[2];
-			transNumber = Integer.parseInt(tokens[3]);
+			transNumber = tokens[3];
 			firstName = tokens[4];
 			lastName = tokens[5];
 			nationality = tokens[6];
@@ -68,7 +68,7 @@ public class CompInfo extends RMonitorMessage
 		return regNumber;
 	}
 
-	public int getTransNumber()
+	public String getTransNumber()
 	{
 		return transNumber;
 	}

@@ -19,7 +19,14 @@ public class LeaderBoardTableCellRenderer extends DefaultTableCellRenderer
 		Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		Duration fastestLap = Competitor.getFastestLap();
 		// TODO: This breaks if you reorder columns!!! Need to figure out how to do this with rowSorter and getModel
-		Duration competitorBestLap = Competitor.getInstance((String) table.getValueAt(row, 2)).getBestLap();
+		Competitor currentComp = Competitor.getInstance((String) table.getValueAt(row, 2));
+
+		Duration competitorBestLap;
+		if (currentComp != null){
+			competitorBestLap = currentComp.getBestLap();
+		} else {
+			competitorBestLap = new Duration();
+		}
 		
 		if (column == 8 && value.equals(fastestLap)) {
 			c.setBackground(new Color(150, 0, 150));

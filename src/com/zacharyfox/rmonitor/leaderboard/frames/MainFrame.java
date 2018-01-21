@@ -16,6 +16,9 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -33,16 +36,19 @@ import javax.swing.UIManager;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.ini4j.Ini;
+
 import com.zacharyfox.rmonitor.entities.Race;
 import com.zacharyfox.rmonitor.leaderboard.LeaderBoardMenuBar;
 import com.zacharyfox.rmonitor.leaderboard.LeaderBoardTable;
 import com.zacharyfox.rmonitor.leaderboard.LeaderBoardTableModel;
+import com.zacharyfox.rmonitor.leaderboard.RaceProvider;
 import com.zacharyfox.rmonitor.leaderboard.Worker;
 import com.zacharyfox.rmonitor.utils.Duration;
 import com.zacharyfox.rmonitor.utils.Estimator;
 import com.zacharyfox.rmonitor.utils.Recorder;
 
-public class MainFrame extends JFrame implements ActionListener
+public class MainFrame extends JFrame implements ActionListener, RaceProvider
 {
 	private final JLabel elapsedTime;
 	private Estimator estimator;
@@ -66,11 +72,28 @@ public class MainFrame extends JFrame implements ActionListener
 	private final JPanel titleBar;
 	private final JLabel trackName;
 	private Worker worker;
+	private Ini  ini;
+	private String iniFilename;
 
 	private static final long serialVersionUID = -743830529485841322L;
 
-	public MainFrame()
+	public MainFrame(String iniFilename)
 	{
+		this.iniFilename = iniFilename;
+		ini = new Ini();
+		try {
+			File inifile = new File(iniFilename);
+			if(!inifile.exists()) {
+				inifile.createNewFile();
+			}
+			ini.load(new FileReader(inifile));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+
+		
 		Font systemLabelFont = UIManager.getFont("Label.font");
 		this.setBounds(100, 100, 870, 430);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -163,6 +186,8 @@ public class MainFrame extends JFrame implements ActionListener
 		resultsScrollPane.setViewportView(leaderBoardTable);
 
 		menuBar = new LeaderBoardMenuBar(this);
+		menuBar.disableStartSignalMenu();
+		menuBar.disableLapCounterMenu();
 		this.setJMenuBar(menuBar);
 	}
 
@@ -178,16 +203,35 @@ public class MainFrame extends JFrame implements ActionListener
 					updateDisplay(evt);
 				}
 			});
+			ConnectFrame.getInstance(this).getIP();
+			ConnectFrame.getInstance(this).getPort();
+			storeIniFile();
+			
 			worker = new Worker(ConnectFrame.getInstance(this), race);
+			
 			if (recorder != null) {
 				worker.setRecorder(recorder);
 			}
+			menuBar.enableStartSignalMenu();
+			menuBar.enableLapCounterMenu();
 			worker.execute();
 		} else if (e.getActionCommand().equals("Disconnect")) {
+			menuBar.disableStartSignalMenu();
+			menuBar.disableLapCounterMenu();
 			worker.cancel(true);
 		}
 
 		return;
+	}
+	
+	public void storeIniFile(){
+		try {
+			File file = new File(iniFilename);
+			ini.store(file);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	}
 
 	public void goFullScreen()
@@ -290,12 +334,21 @@ public class MainFrame extends JFrame implements ActionListener
 			flagColor_2.setBackground(new Color(255, 255, 255));
 			flagColor_3.setBackground(new Color(255, 255, 255));
 			flagColor_4.setBackground(new Color(0, 0, 0));
+		} else if (status.equals("Finish")) {
+			flagColor_1.setBackground(new Color(0, 0, 0));
+			flagColor_2.setBackground(new Color(255, 255, 255));
+			flagColor_3.setBackground(new Color(255, 255, 255));
+			flagColor_4.setBackground(new Color(0, 0, 0));
 		}
 	}
 
+	public Race getRace(){
+		return race;
+	}
+	
 	private void updateDisplay(PropertyChangeEvent evt)
 	{
-		if (evt.getPropertyName().equals("name")) {
+		if (evt.getPropertyName().equals("raceName")) {
 			runName.setText((String) evt.getNewValue());
 		}
 
@@ -329,4 +382,10 @@ public class MainFrame extends JFrame implements ActionListener
 			// trackLength.setText(evt.getNewValue().toString());
 		}
 	}
+	
+	public Ini getIni(){
+		return ini;
+	}
+	
+	
 }

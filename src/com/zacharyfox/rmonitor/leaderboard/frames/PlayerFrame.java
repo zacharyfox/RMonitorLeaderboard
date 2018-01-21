@@ -3,11 +3,14 @@ package com.zacharyfox.rmonitor.leaderboard.frames;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.prefs.Preferences;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
+
+import org.ini4j.IniPreferences;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -25,16 +28,20 @@ public class PlayerFrame extends JFrame implements ActionListener
 	private static PlayerFrame instance;
 	private static Player player;
 	private static final long serialVersionUID = -9179041103033981780L;
+	private Preferences playerPrefs;
 
 	private PlayerFrame(MainFrame mainFrame)
 	{
 		this.mainFrame = mainFrame;
-
+		
+		playerPrefs = new IniPreferences(mainFrame.getIni()).node("Player");
+		
 		getContentPane().setLayout(new MigLayout("", "[grow][][][]", "[][]"));
 		setBounds(100, 100, 400, 150);
 
 		playerFile = new JTextField();
 		getContentPane().add(playerFile, "cell 0 0,growx");
+		playerFile.setText(playerPrefs.get("LastFile", ""));
 		playerFile.setColumns(10);
 
 		selectFileButton = new JButton("Open");
@@ -43,13 +50,19 @@ public class PlayerFrame extends JFrame implements ActionListener
 
 		playerSpeedup = new JTextField();
 		getContentPane().add(playerSpeedup, "cell 2 0");
-		playerSpeedup.setText("2");
+		playerSpeedup.setText(playerPrefs.get("Speedup", "2"));
 		playerSpeedup.setColumns(3);
 
 		startStop = new JButton("Start");
 		startStop.setEnabled(false);
 		startStop.addActionListener(this);
 		getContentPane().add(startStop, "cell 3 0");
+		
+		if (playerFile.getText() != null && !"".equals(playerFile.getText())){
+			File file = new File(playerFile.getText());
+			if (file.canWrite()) startStop.setEnabled(true);
+			
+		}
 	}
 
 	@Override
@@ -57,10 +70,11 @@ public class PlayerFrame extends JFrame implements ActionListener
 	{
 		if (evt.getActionCommand().equals("Open")) {
 			chooser = new JFileChooser();
-			chooser.setSelectedFile(new File("leaderboard-recording.txt"));
+			chooser.setSelectedFile(new File(playerPrefs.get("LastFile", "leaderboard-recording.txt")));
 
 			if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 				playerFile.setText(chooser.getSelectedFile().toString());
+				playerPrefs.put("LastFile", chooser.getSelectedFile().toString());
 				startStop.setEnabled(true);
 			}
 		} else if (evt.getActionCommand().equals("Start")) {
@@ -69,6 +83,7 @@ public class PlayerFrame extends JFrame implements ActionListener
 			selectFileButton.setEnabled(false);
 			player = new Player(playerFile.getText());
 			player.setPlayerSpeedup(Integer.parseInt(playerSpeedup.getText()));
+			playerPrefs.put("Speedup", playerSpeedup.getText());
 			player.execute();
 
 		} else if (evt.getActionCommand().equals("Stop")) {
