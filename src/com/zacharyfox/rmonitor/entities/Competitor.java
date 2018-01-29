@@ -342,8 +342,10 @@ public class Competitor
 	private void setLapsComplete(int lapsComplete)
 	{
 		int oldLapsComplete = this.lapsComplete;
-		this.lapsComplete = lapsComplete;
-		changeSupport.firePropertyChange("lapsComplete", oldLapsComplete, this.lapsComplete);
+		if (oldLapsComplete != lapsComplete) {
+			this.lapsComplete = lapsComplete;
+			changeSupport.firePropertyChange("lapsComplete", oldLapsComplete, this.lapsComplete);
+		}
 	}
 
 	private void setLastLap(Duration lastLap)

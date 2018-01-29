@@ -47,16 +47,18 @@ public class JsonServer   extends SwingWorker<Integer, String>
 	        Object resultTO;
 	        
 	        System.out.println("Path Info:" + request.getPathInfo());
+	        // We split the path of the request
 	        String [] pathInfoParts = request.getPathInfo().split("/");
 	        if (pathInfoParts.length > 1 &&  pathInfoParts[1].equals("race")) {
-	        	//object selected is race
-	        	System.out.println("Path is race:" + pathInfoParts[1]);
+	        	// object selected is race
+	        	//System.out.println("Path is race:" + pathInfoParts[1]);
+	        	// check for an ID as second part
 	        	if (pathInfoParts.length > 2 &&  pathInfoParts[2].matches("\\d+")) {
 	        		int raceID = Integer.parseInt(pathInfoParts[2]);
-	        		System.out.println("Returning race with ID:" + raceID);
+	        		//System.out.println("Returning race with ID:" + raceID);
 	        		resultTO = getRaceToReturn(raceID);
 	        	}else{
-	        		System.out.println("Returning current race");
+	        		//System.out.println("Returning current race");
 	        		resultTO = getRaceToReturn();
 	        	}
 	        } else if (pathInfoParts.length > 1 &&  pathInfoParts[1].equals("races")){
@@ -71,6 +73,7 @@ public class JsonServer   extends SwingWorker<Integer, String>
 	        
 	        // Write back response
 	        response.getWriter().println(gson.toJson(resultTO));
+	        
 	        
 	        // Inform jetty that this request has now been handled
 	        baseRequest.setHandled(true);
@@ -110,7 +113,7 @@ public class JsonServer   extends SwingWorker<Integer, String>
 	public JsonServer(int port, RaceProvider raceProvider)
 	{
 		this.port = port;  
-		jettyServer = new Server(port);
+		jettyServer = new Server(this.port);
 		jettyServer.setHandler(new JsonHandler(raceProvider));
 
 		

@@ -12,6 +12,7 @@ import javax.swing.UIManager;
 import com.zacharyfox.rmonitor.leaderboard.frames.AboutFrame;
 import com.zacharyfox.rmonitor.leaderboard.frames.ConnectFrame;
 import com.zacharyfox.rmonitor.leaderboard.frames.EstimatorFrame;
+import com.zacharyfox.rmonitor.leaderboard.frames.FinishLineLogConfigFrame;
 import com.zacharyfox.rmonitor.leaderboard.frames.LapCounterFrame;
 import com.zacharyfox.rmonitor.leaderboard.frames.MainFrame;
 import com.zacharyfox.rmonitor.leaderboard.frames.PlayerFrame;
@@ -31,6 +32,7 @@ public class LeaderBoardMenuBar extends JMenuBar
 	private final JMenuItem recorderMenuItem;
 	private final JMenuItem startSignalMenuItem;
 	private final JMenuItem lapCounterMenuItem;
+	private final JMenuItem finishLineLogMenuItem;
 	private final JMenuItem webServerMenuItem;
 	
 	
@@ -133,6 +135,18 @@ public class LeaderBoardMenuBar extends JMenuBar
 		});
 		toolsMenu.add(lapCounterMenuItem);
 
+
+		finishLineLogMenuItem = new JMenuItem("Finish Line Log");
+		finishLineLogMenuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				FinishLineLogConfigFrame newFrame = FinishLineLogConfigFrame.getInstance(mainFrame);
+				newFrame.setVisible(true);
+			}
+		});
+		toolsMenu.add(finishLineLogMenuItem);
+		
 		webServerMenuItem = new JMenuItem("Web Server");
 		webServerMenuItem.addActionListener(new ActionListener() {
 			@Override
@@ -184,4 +198,13 @@ public class LeaderBoardMenuBar extends JMenuBar
 		lapCounterMenuItem.setEnabled(true);
 	}
 
+	public void disableFinishLineLogMenu(){
+		finishLineLogMenuItem.setEnabled(false);
+	}
+
+	public void enableFinishLineLogMenu(){
+		finishLineLogMenuItem.setEnabled(true);
+	}
+
+	
 }

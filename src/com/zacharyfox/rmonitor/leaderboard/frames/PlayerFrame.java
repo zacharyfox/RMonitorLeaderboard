@@ -25,6 +25,7 @@ public class PlayerFrame extends JFrame implements ActionListener
 	
 	private final JButton selectFileButton;
 	private final JButton startStop;
+	private final JButton pause;
 	private static PlayerFrame instance;
 	private static Player player;
 	private static final long serialVersionUID = -9179041103033981780L;
@@ -36,8 +37,8 @@ public class PlayerFrame extends JFrame implements ActionListener
 		
 		playerPrefs = new IniPreferences(mainFrame.getIni()).node("Player");
 		
-		getContentPane().setLayout(new MigLayout("", "[grow][][][]", "[][]"));
-		setBounds(100, 100, 400, 150);
+		getContentPane().setLayout(new MigLayout("", "[grow][][][][]", "[][]"));
+		setBounds(100, 100, 600, 150);
 
 		playerFile = new JTextField();
 		getContentPane().add(playerFile, "cell 0 0,growx");
@@ -57,7 +58,12 @@ public class PlayerFrame extends JFrame implements ActionListener
 		startStop.setEnabled(false);
 		startStop.addActionListener(this);
 		getContentPane().add(startStop, "cell 3 0");
-		
+
+		pause = new JButton("Pause");
+		pause.setEnabled(false);
+		pause.addActionListener(this);
+		getContentPane().add(pause, "cell 4 0");
+
 		if (playerFile.getText() != null && !"".equals(playerFile.getText())){
 			File file = new File(playerFile.getText());
 			if (file.canWrite()) startStop.setEnabled(true);
@@ -79,6 +85,7 @@ public class PlayerFrame extends JFrame implements ActionListener
 			}
 		} else if (evt.getActionCommand().equals("Start")) {
 			startStop.setText("Stop");
+			pause.setEnabled(true);
 			playerFile.setEnabled(false);
 			selectFileButton.setEnabled(false);
 			player = new Player(playerFile.getText());
@@ -89,9 +96,20 @@ public class PlayerFrame extends JFrame implements ActionListener
 		} else if (evt.getActionCommand().equals("Stop")) {
 			player.close();
 			startStop.setText("Start");
+			pause.setEnabled(false);
 			playerFile.setEnabled(true);
 			selectFileButton.setEnabled(true);
+			
+		} else if (evt.getActionCommand().equals("Pause")) {
+			pause.setText("Resume");
+			player.pause();
+				
+		} else if (evt.getActionCommand().equals("Resume")) {
+			pause.setText("Pause");
+			player.resume();
+		
 		}
+
 	}
 
 	public static PlayerFrame getInstance(MainFrame mainFrame)

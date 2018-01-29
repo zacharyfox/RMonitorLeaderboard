@@ -214,10 +214,12 @@ public class MainFrame extends JFrame implements ActionListener, RaceProvider
 			}
 			menuBar.enableStartSignalMenu();
 			menuBar.enableLapCounterMenu();
+			menuBar.enableFinishLineLogMenu();
 			worker.execute();
 		} else if (e.getActionCommand().equals("Disconnect")) {
 			menuBar.disableStartSignalMenu();
 			menuBar.disableLapCounterMenu();
+			menuBar.disableFinishLineLogMenu();
 			worker.cancel(true);
 		}
 
