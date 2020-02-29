@@ -178,7 +178,7 @@ public class StartSignalFrame extends JFrame {
 			result = result + competitor.getRegNumber() + ", ";
 		}
 		if (!"".equals(result)){
-			result = result.substring(0, result.length()-3);
+			result = result.substring(0, result.length()-2);
 		}
 		return result;
 	}

@@ -296,6 +296,7 @@ public class Competitor
 	private void messageUpdate(QualInfo message)
 	{
 		this.setRegNumber(message.getRegNumber());
+		this.setPosition(message.getPosition());
 		this.setBestLap(message.getBestLapTime());
 	}
 

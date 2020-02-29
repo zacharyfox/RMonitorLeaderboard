@@ -80,7 +80,7 @@ public class LeaderBoardTableModel extends AbstractTableModel
 	private Object[] getRow(Competitor competitor)
 	{
 		return new Object[] {
-			competitor.getPosition(), competitor.getPositionInClass(), competitor.getRegNumber(), RaceClass.getClassName(competitor.getClassId()),
+				(competitor.getPosition() == 0) ? 9999: competitor.getPosition(), competitor.getPositionInClass(), competitor.getRegNumber(), RaceClass.getClassName(competitor.getClassId()),
 			competitor.getFirstName() + " " + competitor.getLastName(), competitor.getLapsComplete(),
 			competitor.getTotalTime(), competitor.getLastLap(), competitor.getBestLap(), competitor.getAvgLap(), ""
 		};
