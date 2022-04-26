@@ -35,6 +35,7 @@ public class Competitor
 	private String nationality = "";
 	private String number = "";
 	private int position = 0;
+	private int qualiPosition = 0;
 	private String regNumber = "";
 	private Duration totalTime = new Duration();
 	private String transNumber = "";
@@ -128,6 +129,11 @@ public class Competitor
 	public int getPosition()
 	{
 		return position;
+	}
+	
+	public int getQualiPosition()
+	{
+		return qualiPosition;
 	}
 
 	public int getPositionInClass()
@@ -296,7 +302,7 @@ public class Competitor
 	private void messageUpdate(QualInfo message)
 	{
 		this.setRegNumber(message.getRegNumber());
-		this.setPosition(message.getPosition());
+		this.setQualiPosition(message.getPosition());
 		this.setBestLap(message.getBestLapTime());
 	}
 
@@ -383,6 +389,14 @@ public class Competitor
 		this.position = position;
 		changeSupport.firePropertyChange("position", oldPosition, this.position);
 	}
+	
+	private void setQualiPosition(int qualiPosition)
+	{
+		int oldQualiPosition = this.qualiPosition;
+		this.qualiPosition = qualiPosition;
+		changeSupport.firePropertyChange("qualiPosition", oldQualiPosition, this.qualiPosition);
+	}
+
 
 	private void setRegNumber(String regNumber)
 	{
@@ -476,7 +490,7 @@ public class Competitor
 		RaceTO.CompetitorTO[] competitors = new RaceTO.CompetitorTO[instances.size()];
 		int i = 0;
 		for (Competitor competitor : instances.values()) {
-			RaceTO.CompetitorTO competitorTO = raceTO.new CompetitorTO(competitor.number,competitor.position, competitor.lapsComplete, competitor.firstName, competitor.lastName, competitor.totalTime.toString(), competitor.bestLap.toString(), competitor.lastLap.toString());
+			RaceTO.CompetitorTO competitorTO = raceTO.new CompetitorTO(competitor.number,competitor.position, competitor.lapsComplete, competitor.firstName, competitor.lastName, competitor.totalTime.toString(), competitor.bestLap.toString(), competitor.lastLap.toString(), competitor.qualiPosition);
 			competitors[i++] = competitorTO;
 		}
 		raceTO.competitors = competitors;	

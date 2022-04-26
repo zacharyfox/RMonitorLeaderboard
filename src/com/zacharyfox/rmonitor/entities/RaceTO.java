@@ -12,11 +12,11 @@ public class RaceTO {
 		public String totalTime;
 		public String bestLap;
 		public String lastLap;
-		
+		public int qualiPosition;		
 		
 		public CompetitorTO(String number, int position, int lapsComplete,
 				String firstName, String lastName, String totalTime,
-				String bestLap, String lastLap) {
+				String bestLap, String lastLap, int qualiPosition) {
 			this.number = number;
 			this.position = position;
 			this.lapsComplete = lapsComplete;
@@ -25,6 +25,7 @@ public class RaceTO {
 			this.totalTime = totalTime;
 			this.bestLap = bestLap;
 			this.lastLap = lastLap;
+			this.qualiPosition = qualiPosition;
 		}
 		
 		

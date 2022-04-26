@@ -32,6 +32,7 @@ import com.zacharyfox.rmonitor.entities.Race.FlagState;
 import com.zacharyfox.rmonitor.utils.Duration;
 
 import javax.swing.JLabel;
+import javax.swing.JCheckBox;
 
 public class LapCounterFrame extends JFrame {
 	/**
@@ -50,8 +51,10 @@ public class LapCounterFrame extends JFrame {
 
 	private JButton cancelButton;
 	private int lastLapCount;
+	private int lastLapsComplete;
 	private Duration lastLapCountChangeTime;
 	private int lapSwitchDelay;
+	private boolean countLapsUp;
 	private Preferences lapCounterPrefs;
 	
 	private static final String TIME_FORMAT = "HH:mm:ss";
@@ -70,6 +73,7 @@ public class LapCounterFrame extends JFrame {
 	private JLabel lblElapsedTime;
 	private JLabel lblDelay;
 	private JTextField tfDelay;
+	private JCheckBox chckbxCountUpwards;
 	
 	
 	/**
@@ -79,6 +83,8 @@ public class LapCounterFrame extends JFrame {
 		this.mainFrame = mainFrame;
 		lapCounterPrefs = new IniPreferences(mainFrame.getIni()).node("LapCounter");
 		lapSwitchDelay = Integer.parseInt(lapCounterPrefs.get("LapSwitchDelay", "5"));
+		countLapsUp = false;
+		lastLapsComplete = -1;
 		
 		mainFrame.storeIniFile();
 		
@@ -166,6 +172,13 @@ public class LapCounterFrame extends JFrame {
 					infoPanel.add(tfDelay);
 					tfDelay.setColumns(4);
 					tfDelay.setText(Integer.toString(lapSwitchDelay));
+					{
+						chckbxCountUpwards = new JCheckBox("Count Laps upwards");
+						chckbxCountUpwards.setBackground(Color.BLACK);
+						chckbxCountUpwards.setForeground(Color.WHITE);
+						chckbxCountUpwards.setSelected(countLapsUp);
+						infoPanel.add(chckbxCountUpwards);
+					}
 					
 					tfDelay.getDocument().addDocumentListener(new DocumentListener() {
 				            @Override
@@ -220,30 +233,45 @@ public class LapCounterFrame extends JFrame {
 			lastLapCountChangeTime = mainFrame.getRace().getElapsedTime();
 		}
 		
-		if (evt.getPropertyName().equals("lapsToGo") || evt.getPropertyName().equals("elapsedTime")) {
+		if (evt.getPropertyName().equals("lapsComplete") ) {
+			lastLapsComplete = ((int) evt.getNewValue());
+			lastLapCountChangeTime = mainFrame.getRace().getElapsedTime();
+		}
+		
+		if (evt.getPropertyName().equals("lapsToGo") || evt.getPropertyName().equals("elapsedTime") || evt.getPropertyName().equals("lapsComplete") ) {
 			tfElapsedTime.setText(mainFrame.getRace().getElapsedTime().toString());
 			int secondsSinceLastLapCountUpdate = mainFrame.getRace().getElapsedTime().toInt()-lastLapCountChangeTime.toInt();
 			
 			Race.FlagState currentFlagState = mainFrame.getRace().getCurrentFlagState();
 			
-			// For Purple the LapToGo are shown instantly
-			if ( currentFlagState == Race.FlagState.PURPLE || currentFlagState == Race.FlagState.NONE){
-				if (lastLapCount > 0){
-					tfLaps.setText(Integer.toString(lastLapCount));
+			// Display lastLapsComplete or lastLapCount dependent on checkbox
+			if (chckbxCountUpwards.isSelected()){
+				if (lastLapsComplete >= 0){
+					tfLaps.setText(Integer.toString(lastLapsComplete));
 				} else {
 					tfLaps.setText("-");
 				}
-			// for other flags we show the Laps to GO only after the lapSwitchDelay
-			} else if (secondsSinceLastLapCountUpdate > lapSwitchDelay ){
-				
-				
-				if (lastLapCount > 0){
-					tfLaps.setText(Integer.toString(lastLapCount-1));
-				} else {
-					if (currentFlagState == Race.FlagState.NONE) {
-						tfLaps.setText("-");
+			}else{
+			
+				// For Purple the LapToGo are shown instantly
+				if ( currentFlagState == Race.FlagState.PURPLE || currentFlagState == Race.FlagState.NONE){
+					if (lastLapCount > 0){
+						tfLaps.setText(Integer.toString(lastLapCount));
 					} else {
-						tfLaps.setText("0");
+						tfLaps.setText("-");
+					}
+				// for other flags we show the Laps to GO only after the lapSwitchDelay
+				} else if (secondsSinceLastLapCountUpdate > lapSwitchDelay ){
+					
+					
+					if (lastLapCount > 0){
+						tfLaps.setText(Integer.toString(lastLapCount-1));
+					} else {
+						if (currentFlagState == Race.FlagState.NONE) {
+							tfLaps.setText("-");
+						} else {
+							tfLaps.setText("0");
+						}
 					}
 				}
 			}

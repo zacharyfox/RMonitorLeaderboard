@@ -41,6 +41,13 @@ public class JsonServer   extends SwingWorker<Integer, String>
 	        // Declare response encoding and types
 	        response.setContentType("application/json");
 
+	        
+	        // set CORS Headers
+	        response.addHeader("Access-Control-Allow-Headers",
+                    "Access-Control-Allow-Origin, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
+            if (response.getHeader("Access-Control-Allow-Origin") == null)
+                response.addHeader("Access-Control-Allow-Origin", "*");
+	        
 	        // Declare response status code
 	        response.setStatus(HttpServletResponse.SC_OK);
 	        

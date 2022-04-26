@@ -7,10 +7,7 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import sun.security.ssl.Debug;
-
 import com.zacharyfox.rmonitor.entities.Competitor;
-import com.zacharyfox.rmonitor.entities.RaceClass;
 
 public class FinishlineLogTableModel extends AbstractTableModel
 {
