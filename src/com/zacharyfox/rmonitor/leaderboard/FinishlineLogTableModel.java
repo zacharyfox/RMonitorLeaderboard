@@ -1,26 +1,29 @@
 package com.zacharyfox.rmonitor.leaderboard;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
 import com.zacharyfox.rmonitor.entities.Competitor;
-import com.zacharyfox.rmonitor.entities.RaceClass;
 
-public class LeaderBoardTableModel extends AbstractTableModel
+public class FinishlineLogTableModel extends AbstractTableModel
 {
 	private String[] columnNames = new String[] {
-		"Pos", "PIC", "#", "Class", "Name", "Laps", "Total Time", "Last Time", "Best Time", "Avg. Time"
+	//	"Pos", "PIC", "#", "Class", "Name", "Laps", "Total Time", "Last Time", "Best Time", "Avg. Time"
+			 "No.", "Laps", "Name", "Pos"
 	};
 
 	private ArrayList<Object[]> data = new ArrayList<Object[]>();
 	
 	private static final long serialVersionUID = 2982628995537227551L;
 	
-	public LeaderBoardTableModel()
+	public FinishlineLogTableModel()
 	{
 		super();
-		data.add(new Object[]{"", "", "", "", "", "", "", "", "", ""});
+		data.add(new Object[]{"", "", "", ""});
 	}
 	
 	@Override
@@ -69,7 +72,19 @@ public class LeaderBoardTableModel extends AbstractTableModel
 	{
 		ArrayList<Object[]> rows = new ArrayList<Object[]>();
 
+		//Set<Entry<String, Integer>> set = hm.entrySet();
+        List<Competitor> list = new ArrayList<Competitor>();
 		for (Competitor competitor : Competitor.getInstances().values()) {
+			if (competitor.getLapsComplete()>0) list.add(competitor);
+		}
+       
+        Collections.sort(list, new Comparator<Competitor>() {
+        	@Override public int compare(Competitor c1, Competitor c2) {
+                return Float.compare(c2.getTotalTime().toFloat(), c1.getTotalTime().toFloat()) ;
+            }
+        });
+		for (Competitor competitor : list) {
+			//System.out.println(competitor.getRegNumber() + " " + competitor.getTotalTime().toFloat());
 			rows.add(getRow(competitor));
 		}
 
@@ -80,9 +95,9 @@ public class LeaderBoardTableModel extends AbstractTableModel
 	private Object[] getRow(Competitor competitor)
 	{
 		return new Object[] {
-				(competitor.getPosition() == 0) ? 9999: competitor.getPosition(), competitor.getPositionInClass(), competitor.getRegNumber(), RaceClass.getClassName(competitor.getClassId()),
-			competitor.getFirstName() + " " + competitor.getLastName(), competitor.getLapsComplete(),
-			competitor.getTotalTime(), competitor.getLastLap(), competitor.getBestLap(), competitor.getAvgLap(), ""
+			competitor.getRegNumber(), competitor.getLapsComplete(),
+			competitor.getFirstName() + " " + competitor.getLastName(), 
+			competitor.getPosition(), ""
 		};
 	}
 }

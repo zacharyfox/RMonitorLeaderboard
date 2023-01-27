@@ -12,6 +12,8 @@ public class LeaderBoard
 	/**
 	 * Launch the application.
 	 */
+	
+	
 	public static void main(String[] args)
 	{
 		try {
@@ -28,7 +30,8 @@ public class LeaderBoard
 			public void run()
 			{
 				try {
-					MainFrame window = new MainFrame();
+				
+					MainFrame window = new MainFrame("LeaderBoard.ini");
 					window.setVisible(true);
 					ConnectFrame newFrame = ConnectFrame.getInstance(window);
 					newFrame.setVisible(true);

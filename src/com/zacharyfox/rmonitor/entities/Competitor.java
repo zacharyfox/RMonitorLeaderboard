@@ -35,9 +35,10 @@ public class Competitor
 	private String nationality = "";
 	private String number = "";
 	private int position = 0;
+	private int qualiPosition = 0;
 	private String regNumber = "";
 	private Duration totalTime = new Duration();
-	private int transNumber = 0;
+	private String transNumber = "";
 	private static HashMap<String, Competitor> instances = new HashMap<String, Competitor>();
 
 	private Competitor()
@@ -129,6 +130,11 @@ public class Competitor
 	{
 		return position;
 	}
+	
+	public int getQualiPosition()
+	{
+		return qualiPosition;
+	}
 
 	public int getPositionInClass()
 	{
@@ -153,7 +159,7 @@ public class Competitor
 		return totalTime;
 	}
 
-	public int getTransNumber()
+	public String getTransNumber()
 	{
 		return transNumber;
 	}
@@ -220,7 +226,7 @@ public class Competitor
 		Boolean found = false;
 
 		for (Competitor.Lap lap : this.laps) {
-			if (lap.totalTime.equals(message.getTotalTime())) {
+			if (lap != null && lap.totalTime != null && lap.totalTime.equals(message.getTotalTime())) {
 				found = true;
 				lap.lapTime = message.getLapTime();
 			}
@@ -238,7 +244,7 @@ public class Competitor
 	{
 		Boolean found = false;
 		for (Competitor.Lap lap : this.laps) {
-			if (lap.totalTime.equals(message.getTotalTime())) {
+			if (lap != null && lap.totalTime != null && lap.totalTime.equals(message.getTotalTime())) {
 				found = true;
 				lap.totalTime = message.getTotalTime();
 				lap.lapNumber = message.getLaps();
@@ -296,6 +302,7 @@ public class Competitor
 	private void messageUpdate(QualInfo message)
 	{
 		this.setRegNumber(message.getRegNumber());
+		this.setQualiPosition(message.getPosition());
 		this.setBestLap(message.getBestLapTime());
 	}
 
@@ -342,8 +349,10 @@ public class Competitor
 	private void setLapsComplete(int lapsComplete)
 	{
 		int oldLapsComplete = this.lapsComplete;
-		this.lapsComplete = lapsComplete;
-		changeSupport.firePropertyChange("lapsComplete", oldLapsComplete, this.lapsComplete);
+		if (oldLapsComplete != lapsComplete) {
+			this.lapsComplete = lapsComplete;
+			changeSupport.firePropertyChange("lapsComplete", oldLapsComplete, this.lapsComplete);
+		}
 	}
 
 	private void setLastLap(Duration lastLap)
@@ -380,6 +389,14 @@ public class Competitor
 		this.position = position;
 		changeSupport.firePropertyChange("position", oldPosition, this.position);
 	}
+	
+	private void setQualiPosition(int qualiPosition)
+	{
+		int oldQualiPosition = this.qualiPosition;
+		this.qualiPosition = qualiPosition;
+		changeSupport.firePropertyChange("qualiPosition", oldQualiPosition, this.qualiPosition);
+	}
+
 
 	private void setRegNumber(String regNumber)
 	{
@@ -395,9 +412,9 @@ public class Competitor
 		changeSupport.firePropertyChange("totalTime", oldTotalTime, this.totalTime);
 	}
 
-	private void setTransNumber(int transNumber)
+	private void setTransNumber(String transNumber)
 	{
-		int oldTransNumber = this.transNumber;
+		String oldTransNumber = this.transNumber;
 		this.transNumber = transNumber;
 		changeSupport.firePropertyChange("transNumber", oldTransNumber, this.transNumber);
 	}
@@ -467,5 +484,15 @@ public class Competitor
 		}
 
 		instances.put(instance.getRegNumber(), instance);
+	}
+	
+	public static void setCompetitorTO(RaceTO raceTO){
+		RaceTO.CompetitorTO[] competitors = new RaceTO.CompetitorTO[instances.size()];
+		int i = 0;
+		for (Competitor competitor : instances.values()) {
+			RaceTO.CompetitorTO competitorTO = raceTO.new CompetitorTO(competitor.number,competitor.position, competitor.lapsComplete, competitor.firstName, competitor.lastName, competitor.totalTime.toString(), competitor.bestLap.toString(), competitor.lastLap.toString(), competitor.qualiPosition);
+			competitors[i++] = competitorTO;
+		}
+		raceTO.competitors = competitors;	
 	}
 }

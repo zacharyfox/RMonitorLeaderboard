@@ -1,11 +1,14 @@
 package com.zacharyfox.rmonitor.entities;
 
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.HashMap;
 
 import com.zacharyfox.rmonitor.message.ClassInfo;
 import com.zacharyfox.rmonitor.message.CompInfo;
 import com.zacharyfox.rmonitor.message.Heartbeat;
+import com.zacharyfox.rmonitor.message.InitRecord;
 import com.zacharyfox.rmonitor.message.LapInfo;
 import com.zacharyfox.rmonitor.message.PassingInfo;
 import com.zacharyfox.rmonitor.message.QualInfo;
@@ -22,6 +25,8 @@ public class Race
 	private int competitorsVersion = 0;
 	private Duration elapsedTime = new Duration();
 	private String flagStatus = "";
+	public enum FlagState {PURPLE, GREEN, YELLOW, RED, FINISH, NONE};
+	private FlagState currentFlagState; 
 	private int id = 0;
 	private int lapsComplete = 0;
 	private int lapsToGo = 0;
@@ -31,6 +36,8 @@ public class Race
 	private Duration timeToGo = new Duration();
 	private Float trackLength = (float) 0.0;
 	private String trackName = "";
+	
+	private static HashMap<Integer, RaceTO> allRaces = new HashMap<Integer, RaceTO>();
 
 	public void addPropertyChangeListener(PropertyChangeListener l)
 	{
@@ -70,6 +77,18 @@ public class Race
 	public String getTrackName()
 	{
 		return trackName;
+	}
+
+	public String getRaceName()
+	{
+		return name;
+	}
+
+	/**
+	 * @return the elapsedTime
+	 */
+	public synchronized Duration getElapsedTime() {
+		return elapsedTime;
 	}
 
 	public void removePropertyChangeListener(PropertyChangeListener l)
@@ -131,8 +150,10 @@ public class Race
 				RaceClass.update((ClassInfo) message);
 			} else if (message.getClass() == PassingInfo.class) {
 				Competitor.updateOrCreate(message);
+			} else if (message.getClass() == InitRecord.class) {
+				this.messageUpdate((InitRecord) message);
 			} else {
-				System.out.println(message);
+				System.out.println("Message not processed by Race: " + message);
 			}
 		}
 	}
@@ -156,10 +177,10 @@ public class Race
 
 	private void messageUpdate(RunInfo message)
 	{
+		//System.out.println("RunInfo: Current Race " + raceName + " new Race " + message.getRaceName());
 		if (id != message.getUniqueId() && name != message.getRaceName()) {
 			competitorsVersion = 0;
 			elapsedTime = new Duration();
-			flagStatus = "";
 			id = 0;
 			lapsComplete = 0;
 			lapsToGo = 0;
@@ -175,8 +196,32 @@ public class Race
 
 		setName(message.getRaceName());
 		setId(message.getUniqueId());
+		setFlagStatus("");
 	}
 
+	private void messageUpdate(InitRecord message)
+	{
+		// before initializing the race we FINISH the last one and store the status of the old race
+		setFlagStatus("FINISH");
+		this.getRaceTO(); // we fetch the TO so that the current race gets stored
+		
+		setElapsedTime(new Duration());
+		setLapsToGo(0);
+		setTimeToGo(new Duration());
+		setScheduledTime(new Duration());
+		setTimeOfDay(new Duration());
+		Competitor.reset();
+		competitorsVersion = 0;
+		setCompetitorsVersion();
+		setLapsComplete(0);
+		setTrackLength((float) 0.0);
+
+		setTrackName("");
+		setName("");
+		setId(0);
+		setFlagStatus("");
+		
+	}
 	private void messageUpdate(SettingInfo message)
 	{
 		if (message.getDescription().equals("TRACKNAME")) {
@@ -204,15 +249,41 @@ public class Race
 	private void setFlagStatus(String flagStatus)
 	{
 		String oldFlagStatus = this.flagStatus;
+		FlagState oldCurrentFlagState = this.currentFlagState;
+		
 		this.flagStatus = flagStatus;
+		
+		switch (flagStatus.toUpperCase()){
+		case "RED":
+			currentFlagState = FlagState.RED;
+			break;
+		case "YELLOW":
+			currentFlagState = FlagState.YELLOW;
+			break;
+		case "GREEN":
+			currentFlagState = FlagState.GREEN;
+			break;
+		case "FINISH":
+			currentFlagState = FlagState.FINISH;
+			break;
+		default:
+			// If Race Name is empty and raceID is 0 we have no active Race. 
+			if ("".equals(this.name) && this.id == 0 ) {
+				currentFlagState= FlagState.NONE;
+			} else {
+				currentFlagState = FlagState.PURPLE;
+			}
+		}
+		
 		changeSupport.firePropertyChange("flagStatus", oldFlagStatus, this.flagStatus);
+		changeSupport.firePropertyChange("currentFlagState", oldCurrentFlagState, this.currentFlagState);
 	}
 
 	private void setId(int id)
 	{
 		int oldId = this.id;
 		this.id = id;
-		changeSupport.firePropertyChange("id", oldId, this.id);
+		changeSupport.firePropertyChange("raceID", oldId, this.id);
 	}
 
 	private void setLapsComplete(int lapsComplete)
@@ -233,7 +304,21 @@ public class Race
 	{
 		String oldName = this.name;
 		this.name = name;
-		changeSupport.firePropertyChange("name", oldName, this.name);
+		changeSupport.firePropertyChange("raceName", oldName, this.name);
+	}
+
+	/**
+	 * @return the flagStatus
+	 */
+	public synchronized String getFlagStatus() {
+		return flagStatus;
+	}
+
+	/**
+	 * @return the currentFlagState
+	 */
+	public synchronized FlagState getCurrentFlagState() {
+		return currentFlagState;
 	}
 
 	private void setScheduledTime(Duration scheduledTime)
@@ -270,4 +355,31 @@ public class Race
 		this.trackName = trackName;
 		changeSupport.firePropertyChange("trackName", oldTrackName, this.trackName);
 	}
+	
+	
+	public RaceTO getRaceTO(){
+		RaceTO raceTO = new RaceTO(elapsedTime.toString(), currentFlagState.toString(), id, lapsToGo, lapsComplete,name,timeOfDay.toString(),trackName);
+		Competitor.setCompetitorTO(raceTO);
+		
+		if (id != 0) {
+			allRaces.put(id, raceTO);
+		}
+		return raceTO;
+	}
+	
+	public static RaceTO getToByID(int raceID)
+	{
+		Integer key = new Integer(raceID);
+		if (allRaces.containsKey(key)) {
+			return allRaces.get(key);
+		}
+		return null;
+	}
+	
+	public static RaceTO[] getAllRaceTOs(){
+		return (RaceTO[]) allRaces.values().toArray(new RaceTO[0]);
+	}
+	
 }
+
+

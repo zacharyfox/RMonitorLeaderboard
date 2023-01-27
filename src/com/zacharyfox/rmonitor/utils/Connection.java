@@ -22,7 +22,7 @@ public class Connection extends Socket
 	@Override
 	public void close() throws IOException
 	{
-		clientReader.close();
+		if (clientReader != null) clientReader.close();
 		super.close();
 	}
 

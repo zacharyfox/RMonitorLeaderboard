@@ -123,12 +123,12 @@ public class RaceTest
 			@Override
 			public void propertyChange(PropertyChangeEvent evt)
 			{
-				if ("name".equals(evt.getPropertyName())) {
+				if ("raceName".equals(evt.getPropertyName())) {
 					nameFired = true;
 					assertEquals("Friday free practice", evt.getNewValue());
 				}
 
-				if ("id".equals(evt.getPropertyName())) {
+				if ("raceID".equals(evt.getPropertyName())) {
 					idFired = true;
 					assertEquals(5, evt.getNewValue());
 				}
